@@ -180,70 +180,145 @@
       </div>
 
       <article id="achievementSheet" class="achievement-sheet">
-        <div class="sheet-accent"></div>
+        <div class="sheet-top-wave"></div>
+        <div class="sheet-dot-pattern sheet-dot-pattern-a"></div>
+        <div class="sheet-dot-pattern sheet-dot-pattern-b"></div>
+
         <header class="sheet-header">
           <div id="sheetLogo" class="sheet-logo">
             <span>الشعار</span>
           </div>
+
           <div class="sheet-brand">
+            <span class="sheet-kicker">ملف توثيق وإنجاز</span>
             <p id="sheetOrganization">اسم المؤسسة / المدرسة</p>
-            <h2>ورقة إنجاز فعالية</h2>
           </div>
-          <div id="sheetQr" class="sheet-qr">
-            <span>QR</span>
+
+          <div class="sheet-qr-wrap">
+            <div id="sheetQr" class="sheet-qr"><span>QR</span></div>
+            <small>امسح لعرض الفعالية</small>
           </div>
         </header>
 
         <section class="hero-card">
-          <div class="hero-kicker">توثيق فعالية</div>
-          <h1 id="sheetEventName">اسم الفعالية</h1>
-          <div class="hero-meta">
-            <span id="sheetDate">التاريخ: —</span>
-            <span id="sheetLocation">المكان: —</span>
+          <div class="hero-copy">
+            <span class="hero-pill">ورقة إنجاز فعالية</span>
+            <h1 id="sheetEventName">اسم الفعالية</h1>
+            <div class="hero-line"></div>
+            <p class="hero-caption">توثيق مختصر ومنظم لأبرز بيانات الفعالية وأهدافها وشواهد تنفيذها.</p>
+            <div class="hero-meta">
+              <span id="sheetDate">التاريخ: —</span>
+              <span id="sheetLocation">المكان: —</span>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-hidden="true">
+            <div class="visual-orbit orbit-one"></div>
+            <div class="visual-orbit orbit-two"></div>
+            <div class="visual-card">
+              <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+                <path d="M18 11h28a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V15a4 4 0 0 1 4-4Z" fill="none" stroke="currentColor" stroke-width="3"/>
+                <path d="M23 22h18M23 31h18M23 40h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                <path d="m37 41 4 4 8-9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="visual-badge">إنجاز</div>
           </div>
         </section>
 
         <section class="info-grid">
-          <div class="info-card">
-            <span class="info-label">مجال الفعالية</span>
-            <strong id="sheetField">—</strong>
+          <div class="info-card info-card-blue">
+            <div class="info-icon">01</div>
+            <div>
+              <span class="info-label">مجال الفعالية</span>
+              <strong id="sheetField">—</strong>
+            </div>
           </div>
-          <div class="info-card">
-            <span class="info-label">الفئة المستهدفة</span>
-            <strong id="sheetAudience">—</strong>
+          <div class="info-card info-card-teal">
+            <div class="info-icon">02</div>
+            <div>
+              <span class="info-label">الفئة المستهدفة</span>
+              <strong id="sheetAudience">—</strong>
+            </div>
           </div>
-          <div class="info-card">
-            <span class="info-label">عدد المشاركين</span>
-            <strong id="sheetParticipants">—</strong>
+          <div class="info-card info-card-gold">
+            <div class="info-icon">03</div>
+            <div>
+              <span class="info-label">عدد المشاركين</span>
+              <strong id="sheetParticipants">—</strong>
+            </div>
           </div>
         </section>
 
-        <section class="content-block">
-          <div class="block-title"><span>01</span><h3>هدف الفعالية</h3></div>
-          <p id="sheetGoal">يظهر هنا هدف الفعالية بعد إدخاله في النموذج.</p>
-        </section>
+        <section class="story-grid">
+          <section class="content-block content-block-goal">
+            <div class="block-title">
+              <span>01</span>
+              <div>
+                <small>WHY</small>
+                <h3>هدف الفعالية</h3>
+              </div>
+            </div>
+            <p id="sheetGoal">يظهر هنا هدف الفعالية بعد إدخاله في النموذج.</p>
+          </section>
 
-        <section class="content-block">
-          <div class="block-title"><span>02</span><h3>نبذة عن الفعالية</h3></div>
-          <p id="sheetSummary">يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.</p>
+          <section class="content-block content-block-summary">
+            <div class="block-title">
+              <span>02</span>
+              <div>
+                <small>ABOUT</small>
+                <h3>نبذة عن الفعالية</h3>
+              </div>
+            </div>
+            <p id="sheetSummary">يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.</p>
+          </section>
         </section>
 
         <section class="evidence-block">
-          <div class="block-title"><span>03</span><h3>شواهد الفعالية</h3></div>
+          <div class="evidence-heading">
+            <div class="block-title">
+              <span>03</span>
+              <div>
+                <small>EVIDENCE</small>
+                <h3>شواهد الفعالية</h3>
+              </div>
+            </div>
+            <div class="evidence-rule"></div>
+            <span class="evidence-caption">صور من التنفيذ والتوثيق</span>
+          </div>
+
           <div id="sheetEvidence" class="sheet-evidence empty">
-            <div class="evidence-placeholder">أضف صور الشواهد لتظهر هنا</div>
+            <div class="evidence-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 64 64" aria-hidden="true">
+                  <rect x="9" y="13" width="46" height="38" rx="6" fill="none" stroke="currentColor" stroke-width="3"/>
+                  <circle cx="23" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+                  <path d="m15 45 12-12 9 9 6-6 7 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <span>أضف صور الشواهد لتظهر هنا بتنسيق احترافي</span>
+            </div>
           </div>
         </section>
 
         <footer class="sheet-footer">
+          <div class="footer-title">
+            <span>اعتمادات التنفيذ والمتابعة</span>
+            <div></div>
+          </div>
+
           <div class="footer-signatures">
             <div><span>التصميم</span><strong id="sheetDesigner">—</strong></div>
             <div><span>المتابعة</span><strong id="sheetFollowUp">—</strong></div>
             <div><span>المدير / المنسق</span><strong id="sheetDirector">—</strong></div>
             <div><span>المساعدون</span><strong id="sheetAssistants">—</strong></div>
-            <div><span>مدير المدرسة</span><strong id="sheetPrincipal">—</strong></div>
+            <div class="principal-sign"><span>مدير المدرسة</span><strong id="sheetPrincipal">—</strong></div>
           </div>
-          <div class="footer-note">وثيقة رقمية قابلة للتحقق عبر رمز QR</div>
+
+          <div class="footer-bottom">
+            <div class="footer-mark">إنجاز • توثيق • أثر</div>
+            <div class="footer-note">وثيقة رقمية قابلة للتحقق عبر رمز QR</div>
+          </div>
         </footer>
       </article>
 
