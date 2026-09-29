@@ -2,7 +2,9 @@
   "use strict";
 
   const config = window.MOBADRA_CONFIG || {};
-  const API_BASE = String(config.apiBase || "").replace(/\/$/, "");
+  const DATA_API_URL = String(config.dataApiUrl || "").replace(/\/$/, "");
+  const AUTH_BASE_URL = String(config.authBaseUrl || "").replace(/\/$/, "");
+  const HAS_BACKEND = Boolean(DATA_API_URL && AUTH_BASE_URL);
   const MAX_EVIDENCE = Number(config.maxEvidenceImages || 6);
   const MAX_WIDTH = Number(config.maxImageWidth || 1400);
   const JPEG_QUALITY = Number(config.jpegQuality || 0.82);
@@ -271,29 +273,75 @@
     return key;
   };
 
-  const api = async (path, options = {}) => {
-    if (!API_BASE) throw new Error("BACKEND_NOT_CONFIGURED");
-    const headers = {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    };
-    const adminKey = options.admin ? getAdminKey() : "";
-    if (adminKey) headers["X-Admin-Key"] = adminKey;
+  let anonToken = "";
+  let anonTokenFetchedAt = 0;
 
-    const response = await fetch(API_BASE + path, {
-      ...options,
-      headers
+  const getAnonToken = async (force = false) => {
+    if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
+    const freshEnough = anonToken && (Date.now() - anonTokenFetchedAt) < 10 * 60 * 1000;
+    if (!force && freshEnough) return anonToken;
+
+    const response = await fetch(AUTH_BASE_URL + "/token/anonymous", {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      credentials: "omit"
     });
 
     let payload = null;
     try { payload = await response.json(); } catch { payload = null; }
 
     if (!response.ok) {
-      const message = payload?.error || payload?.message || ("HTTP " + response.status);
+      throw new Error(payload?.message || payload?.error || "تعذر إنشاء جلسة العرض العامة");
+    }
+
+    const token = payload?.token || payload?.accessToken || payload?.access_token || payload?.jwt;
+    if (!token) throw new Error("لم يتم استلام رمز الوصول من Neon Auth");
+
+    anonToken = token;
+    anonTokenFetchedAt = Date.now();
+    return anonToken;
+  };
+
+  const dataApiFetch = async (path, options = {}, retry = true) => {
+    if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
+    const token = await getAnonToken();
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer " + token,
+      ...(options.headers || {})
+    };
+
+    const response = await fetch(DATA_API_URL + path, {
+      ...options,
+      headers
+    });
+
+    if (response.status === 401 && retry) {
+      anonToken = "";
+      anonTokenFetchedAt = 0;
+      await getAnonToken(true);
+      return dataApiFetch(path, options, false);
+    }
+
+    let payload = null;
+    const bodyText = await response.text();
+    if (bodyText) {
+      try { payload = JSON.parse(bodyText); } catch { payload = bodyText; }
+    }
+
+    if (!response.ok) {
+      const message =
+        payload?.message ||
+        payload?.error ||
+        payload?.details ||
+        (typeof payload === "string" ? payload : null) ||
+        ("HTTP " + response.status);
       const err = new Error(message);
       err.status = response.status;
       throw err;
     }
+
     return payload;
   };
 
@@ -341,37 +389,43 @@
     els.publishBtn.textContent = "جارٍ النشر...";
 
     try {
-      if (!API_BASE) {
-        const local = saveLocalDraft(data);
-        state.id = local.id;
-        setPublished(local.slug, makePublicUrl(local.slug));
-        toast("تم حفظ نسخة محلية للمعاينة. يلزم ربط Neon للنشر العام.");
-        els.backendNotice.classList.remove("hidden");
-        return;
-      }
+      if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
+
+      const adminKey = getAdminKey();
+      if (!adminKey) throw new Error("يلزم إدخال رمز إدارة المنصة");
 
       const body = {
         ...data,
         slug: data.slug || slugify()
       };
-      const method = state.id ? "PUT" : "POST";
-      const path = state.id ? "/events/" + encodeURIComponent(state.id) : "/events";
-      const payload = await api(path, {
-        method,
-        admin: true,
-        body: JSON.stringify(body)
+
+      const payload = await dataApiFetch("/rpc/mobadra_save_event", {
+        method: "POST",
+        body: JSON.stringify({
+          p_admin_key: adminKey,
+          p_event: body
+        })
       });
 
-      const saved = normalizeRemoteEvent(payload?.event || payload?.data || payload || body);
+      const remote = Array.isArray(payload) ? payload[0] : payload;
+      const saved = normalizeRemoteEvent(remote || body);
       state.id = saved.id || state.id;
-      populateForm({ ...data, ...saved });
+      populateForm({ ...data, ...saved, slug: saved.slug || body.slug });
       setPublished(saved.slug || body.slug, makePublicUrl(saved.slug || body.slug));
       toast("تم نشر ورقة الإنجاز بنجاح");
     } catch (error) {
-      if (error.status === 401 || error.status === 403) {
+      const message = String(error?.message || "");
+      if (error?.status === 401 || /invalid_admin_key/i.test(message)) {
         sessionStorage.removeItem("mobadra:adminKey");
       }
-      toast(error.message === "BACKEND_NOT_CONFIGURED" ? "لم يتم ربط قاعدة البيانات بعد" : "تعذر النشر: " + error.message, "error");
+      toast(
+        message === "BACKEND_NOT_CONFIGURED"
+          ? "لم يتم ربط قاعدة البيانات بعد"
+          : /invalid_admin_key/i.test(message)
+            ? "رمز إدارة المنصة غير صحيح"
+            : "تعذر النشر: " + (message || "خطأ غير معروف"),
+        "error"
+      );
     } finally {
       els.publishBtn.disabled = false;
       els.publishBtn.textContent = state.id ? "حفظ التعديلات" : "نشر الفعالية";
@@ -387,15 +441,23 @@
     els.app.style.gridTemplateColumns = "1fr";
 
     try {
-      let data = null;
-      if (API_BASE) {
-        const payload = await api("/events/" + encodeURIComponent(slug), { method: "GET" });
-        data = normalizeRemoteEvent(payload?.event || payload?.data || payload || {});
-      } else {
-        data = loadLocal(slug);
-      }
+      if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
 
-      if (!data) throw new Error("لم يتم العثور على الفعالية");
+      const params = new URLSearchParams({
+        select: "*",
+        slug: "eq." + slug,
+        is_published: "eq.true",
+        limit: "1"
+      });
+
+      const payload = await dataApiFetch("/mobadra_events?" + params.toString(), {
+        method: "GET"
+      });
+
+      const row = Array.isArray(payload) ? payload[0] : payload;
+      if (!row) throw new Error("لم يتم العثور على الفعالية");
+
+      const data = normalizeRemoteEvent(row);
       populateForm(data);
       state.slug = data.slug || slug;
       state.publishedUrl = makePublicUrl(state.slug);
@@ -403,11 +465,12 @@
       drawQrs(state.publishedUrl);
       document.title = (data.eventName || "ورقة إنجاز") + " | منصة إنجاز الفعاليات";
     } catch (error) {
-      toast(error.message || "تعذر تحميل الفعالية", "error");
+      toast(error?.message || "تعذر تحميل الفعالية", "error");
       els.sheetEventName.textContent = "تعذر تحميل الفعالية";
-      els.sheetSummary.textContent = API_BASE
-        ? "الرابط غير صحيح أو لم تعد الفعالية متاحة."
-        : "هذه نسخة محلية غير منشورة بعد. يجب ربط Neon حتى يعمل الرابط من أي جهاز.";
+      els.sheetSummary.textContent =
+        error?.message === "BACKEND_NOT_CONFIGURED"
+          ? "لم يكتمل ربط قاعدة البيانات بعد."
+          : "الرابط غير صحيح أو لم تعد الفعالية متاحة.";
     }
   };
 
@@ -519,7 +582,7 @@
   els.copyLinkBtn.addEventListener("click", copyLink);
   els.shareBtn.addEventListener("click", shareLink);
 
-  if (!API_BASE) els.backendNotice.classList.remove("hidden");
+  if (!HAS_BACKEND) els.backendNotice.classList.remove("hidden");
 
   const publicSlug = new URLSearchParams(window.location.search).get("event");
   if (publicSlug) {
