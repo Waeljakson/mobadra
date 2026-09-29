@@ -44,9 +44,24 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS mobadra_events_set_updated_at ON mobadra_events;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'mobadra_events_set_updated_at'
+      AND tgrelid = 'mobadra_events'::regclass
+  ) THEN
+    CREATE TRIGGER mobadra_events_set_updated_at
+    BEFORE UPDATE ON mobadra_events
+    FOR EACH ROW
+    EXECUTE FUNCTION mobadra_set_updated_at();
+  END IF;
+END;
+$$;
 
-CREATE TRIGGER mobadra_events_set_updated_at
-BEFORE UPDATE ON mobadra_events
-FOR EACH ROW
-EXECUTE FUNCTION mobadra_set_updated_at();
+CREATE TABLE IF NOT EXISTS mobadra_settings (
+  setting_key text PRIMARY KEY,
+  setting_value text NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
