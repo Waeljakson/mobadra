@@ -5,7 +5,7 @@
 ## المزايا
 
 - خط Cairo وتصميم متجاوب للجوال والكمبيوتر.
-- اسم الفعالية، المؤسسة، التاريخ، المكان، المجال، الفئة المستهدفة وعدد المشاركين.
+- إدخال اسم الفعالية، المؤسسة، التاريخ، المكان، المجال، الفئة المستهدفة وعدد المشاركين.
 - هدف الفعالية ونبذة تنفيذية.
 - رفع شعار المؤسسة وحتى 6 صور شواهد مع ضغط الصور داخل المتصفح.
 - بيانات التذييل: التصميم، المتابعة، المدير/المنسق، المساعدون، مدير المدرسة.
@@ -14,26 +14,54 @@
 - رابط عام وQR Code لكل فعالية.
 - GitHub Pages للواجهة.
 - Neon Postgres لحفظ البيانات.
-- Neon Function كـ API آمن للحفظ والقراءة.
+- Neon Data API للقراءة والنشر.
+- RLS وصلاحيات PostgreSQL للعرض العام الآمن.
+- RPC محمية بمفتاح إدارة للحفظ والتعديل.
+
+## البنية الحالية
+
+- Frontend: GitHub Pages.
+- Database: Neon Postgres.
+- Auth service: Neon Auth.
+- API: Neon Data API / PostgREST.
+- Public access: دور `anonymous` يقرأ الفعاليات المنشورة فقط.
+- Admin writes: الدالة `mobadra_save_event` تتحقق من مفتاح الإدارة قبل الحفظ.
 
 ## هيكل المشروع
 
 - `index.html` — واجهة التطبيق.
 - `styles.css` — التصميم والطباعة.
-- `app.js` — المنطق، المعاينة، الصور وQR.
-- `config.js` — رابط API بعد نشر Neon Function.
-- `neon/schema.sql` — مخطط قاعدة البيانات.
-- `functions/mobadra.ts` — API.
-- `neon.ts` — تعريف Neon Function.
+- `app.js` — المنطق، المعاينة، الصور، Data API وQR.
+- `config.js` — رابط Neon Data API.
+- `neon/schema.sql` — مخطط قاعدة البيانات الأساسي.
+- `neon/data-api-security.sql` — RLS والصلاحيات وRPC.
+- `neon.ts` — تعريف Neon Auth وData API.
 - `.github/workflows/pages.yml` — نشر GitHub Pages.
 
-## إعداد Neon
+## Neon
 
-1. أنشئ/حدد مشروع Neon.
-2. نفّذ ملف `neon/schema.sql`.
-3. اضبط متغير البيئة `MOBADRA_ADMIN_KEY` داخل Neon Function.
-4. انشر Function باسم `mobadra`.
-5. ضع رابط Invocation URL في `config.js` داخل `apiBase`.
-6. ضع `requiresAdminKey: true` في `config.js`.
+المشروع المستخدم:
 
-> لا يتم وضع كلمة مرور الإدارة أو Connection String داخل GitHub.
+- Project ID: `calm-base-78688820`
+- Branch: `production`
+- Database: `neondb`
+- Region: `aws-us-east-2`
+
+الإعداد المعلن في `neon.ts`:
+
+```ts
+import { defineConfig } from "@neon/config/v1";
+
+export default defineConfig({
+  auth: true,
+  dataApi: true,
+});
+```
+
+بعد ربط المشروع محليًا يمكن تطبيق الإعداد باستخدام:
+
+```bash
+neon deploy
+```
+
+> لا يتم تخزين مفتاح الإدارة بصورته النصية ولا Connection String داخل GitHub.
