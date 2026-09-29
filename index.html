@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b5f53" />
+  <meta name="description" content="منصة إنشاء ونشر أوراق إنجاز الفعاليات المدرسية مع رمز QR." />
+  <title>منصة إنجاز الفعاليات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <header class="topbar no-print">
+    <div class="brand">
+      <div class="brand-mark">إ</div>
+      <div>
+        <strong>منصة إنجاز الفعاليات</strong>
+        <span>توثيق • تصميم • مشاركة</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="newEventBtn" class="btn btn-ghost" type="button">فعالية جديدة</button>
+      <button id="printTopBtn" class="btn btn-dark" type="button">طباعة / PDF</button>
+    </div>
+  </header>
+
+  <main id="app" class="app-shell">
+    <section id="editorPanel" class="editor no-print">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">بيانات الفعالية</p>
+          <h1>أنشئ ورقة إنجاز احترافية</h1>
+          <p>أدخل البيانات وارفع الشواهد، وستظهر المعاينة مباشرة.</p>
+        </div>
+        <span id="saveState" class="status-badge">مسودة</span>
+      </div>
+
+      <form id="eventForm" class="form-grid" autocomplete="off">
+        <div class="field span-2">
+          <label for="eventName">اسم الفعالية *</label>
+          <input id="eventName" name="eventName" required maxlength="120" placeholder="مثال: اليوم الوطني البحريني" />
+        </div>
+
+        <div class="field">
+          <label for="organizationName">اسم المؤسسة / المدرسة *</label>
+          <input id="organizationName" name="organizationName" required maxlength="120" placeholder="مدرسة عثمان بن عفان الابتدائية الإعدادية للبنين" />
+        </div>
+
+        <div class="field">
+          <label for="eventDate">تاريخ الفعالية</label>
+          <input id="eventDate" name="eventDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="eventLocation">مكان الفعالية</label>
+          <input id="eventLocation" name="eventLocation" maxlength="100" placeholder="المسرح المدرسي / الساحة / الصف..." />
+        </div>
+
+        <div class="field">
+          <label for="participantCount">عدد المشاركين</label>
+          <input id="participantCount" name="participantCount" min="0" max="99999" type="number" inputmode="numeric" placeholder="0" />
+        </div>
+
+        <div class="field">
+          <label for="eventField">مجال الفعالية</label>
+          <select id="eventField" name="eventField">
+            <option value="">اختر المجال</option>
+            <option>تعليمي</option>
+            <option>ثقافي</option>
+            <option>وطني</option>
+            <option>توعوي</option>
+            <option>اجتماعي</option>
+            <option>تطوعي</option>
+            <option>رياضي</option>
+            <option>تقني</option>
+            <option>مهني</option>
+            <option>بيئي</option>
+            <option>صحي</option>
+            <option>أخرى</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="targetAudience">الفئة المستهدفة</label>
+          <input id="targetAudience" name="targetAudience" maxlength="120" placeholder="طلاب الصف..." />
+        </div>
+
+        <div class="field span-2">
+          <label for="eventGoal">هدف الفعالية</label>
+          <textarea id="eventGoal" name="eventGoal" rows="3" maxlength="650" placeholder="اكتب الهدف بصورة مختصرة وواضحة..."></textarea>
+        </div>
+
+        <div class="field span-2">
+          <label for="summary">نبذة عن الفعالية</label>
+          <textarea id="summary" name="summary" rows="4" maxlength="1100" placeholder="ملخص تنفيذي لما تم في الفعالية وأبرز مخرجاتها..."></textarea>
+        </div>
+
+        <div class="upload-card span-2">
+          <div class="upload-head">
+            <div>
+              <strong>شعار المؤسسة</strong>
+              <small>PNG أو JPG — يفضل خلفية شفافة</small>
+            </div>
+            <label class="upload-btn" for="logoInput">اختيار شعار</label>
+            <input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+          </div>
+          <div id="logoPreview" class="logo-preview empty">لم يتم رفع شعار</div>
+        </div>
+
+        <div class="upload-card span-2">
+          <div class="upload-head">
+            <div>
+              <strong>شواهد الفعالية</strong>
+              <small>حتى 6 صور — يتم ضغطها تلقائيًا قبل الحفظ</small>
+            </div>
+            <label class="upload-btn" for="evidenceInput">إضافة شواهد</label>
+            <input id="evidenceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
+          </div>
+          <div id="evidenceManager" class="evidence-manager empty">لا توجد صور مضافة</div>
+        </div>
+
+        <div class="section-title span-2">
+          <span>اعتمادات وتذييل الورقة</span>
+        </div>
+
+        <div class="field">
+          <label for="designer">التصميم</label>
+          <input id="designer" name="designer" maxlength="90" placeholder="الاسم" />
+        </div>
+        <div class="field">
+          <label for="followUp">المتابعة</label>
+          <input id="followUp" name="followUp" maxlength="90" placeholder="الاسم" />
+        </div>
+        <div class="field">
+          <label for="eventDirector">المدير / منسق الفعالية</label>
+          <input id="eventDirector" name="eventDirector" maxlength="90" placeholder="الاسم" />
+        </div>
+        <div class="field">
+          <label for="assistants">المساعدون</label>
+          <input id="assistants" name="assistants" maxlength="160" placeholder="الأسماء مفصولة بفاصلة" />
+        </div>
+        <div class="field span-2">
+          <label for="schoolPrincipal">مدير المدرسة</label>
+          <input id="schoolPrincipal" name="schoolPrincipal" maxlength="90" placeholder="الاسم" />
+        </div>
+
+        <div class="publish-box span-2">
+          <div>
+            <strong>نشر ورقة الإنجاز</strong>
+            <p>بعد النشر يتم إنشاء رابط عام وQR Code للفعالية.</p>
+          </div>
+          <button id="publishBtn" class="btn btn-primary" type="submit">نشر الفعالية</button>
+        </div>
+      </form>
+
+      <section id="sharePanel" class="share-panel hidden">
+        <div>
+          <p class="eyebrow">تم النشر</p>
+          <h2>رابط ورقة الإنجاز</h2>
+          <div class="share-url-wrap">
+            <input id="shareUrl" readonly />
+            <button id="copyLinkBtn" class="btn btn-dark" type="button">نسخ الرابط</button>
+          </div>
+        </div>
+        <div id="shareQr" class="share-qr" aria-label="رمز QR"></div>
+      </section>
+    </section>
+
+    <section class="preview-wrap">
+      <div class="preview-toolbar no-print">
+        <span>معاينة ورقة الإنجاز</span>
+        <div>
+          <button id="shareBtn" class="mini-btn hidden" type="button">مشاركة الرابط</button>
+          <button id="printBtn" class="mini-btn" type="button">طباعة / حفظ PDF</button>
+        </div>
+      </div>
+
+      <article id="achievementSheet" class="achievement-sheet">
+        <div class="sheet-accent"></div>
+        <header class="sheet-header">
+          <div id="sheetLogo" class="sheet-logo">
+            <span>الشعار</span>
+          </div>
+          <div class="sheet-brand">
+            <p id="sheetOrganization">اسم المؤسسة / المدرسة</p>
+            <h2>ورقة إنجاز فعالية</h2>
+          </div>
+          <div id="sheetQr" class="sheet-qr">
+            <span>QR</span>
+          </div>
+        </header>
+
+        <section class="hero-card">
+          <div class="hero-kicker">توثيق فعالية</div>
+          <h1 id="sheetEventName">اسم الفعالية</h1>
+          <div class="hero-meta">
+            <span id="sheetDate">التاريخ: —</span>
+            <span id="sheetLocation">المكان: —</span>
+          </div>
+        </section>
+
+        <section class="info-grid">
+          <div class="info-card">
+            <span class="info-label">مجال الفعالية</span>
+            <strong id="sheetField">—</strong>
+          </div>
+          <div class="info-card">
+            <span class="info-label">الفئة المستهدفة</span>
+            <strong id="sheetAudience">—</strong>
+          </div>
+          <div class="info-card">
+            <span class="info-label">عدد المشاركين</span>
+            <strong id="sheetParticipants">—</strong>
+          </div>
+        </section>
+
+        <section class="content-block">
+          <div class="block-title"><span>01</span><h3>هدف الفعالية</h3></div>
+          <p id="sheetGoal">يظهر هنا هدف الفعالية بعد إدخاله في النموذج.</p>
+        </section>
+
+        <section class="content-block">
+          <div class="block-title"><span>02</span><h3>نبذة عن الفعالية</h3></div>
+          <p id="sheetSummary">يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.</p>
+        </section>
+
+        <section class="evidence-block">
+          <div class="block-title"><span>03</span><h3>شواهد الفعالية</h3></div>
+          <div id="sheetEvidence" class="sheet-evidence empty">
+            <div class="evidence-placeholder">أضف صور الشواهد لتظهر هنا</div>
+          </div>
+        </section>
+
+        <footer class="sheet-footer">
+          <div class="footer-signatures">
+            <div><span>التصميم</span><strong id="sheetDesigner">—</strong></div>
+            <div><span>المتابعة</span><strong id="sheetFollowUp">—</strong></div>
+            <div><span>المدير / المنسق</span><strong id="sheetDirector">—</strong></div>
+            <div><span>المساعدون</span><strong id="sheetAssistants">—</strong></div>
+            <div><span>مدير المدرسة</span><strong id="sheetPrincipal">—</strong></div>
+          </div>
+          <div class="footer-note">وثيقة رقمية قابلة للتحقق عبر رمز QR</div>
+        </footer>
+      </article>
+
+      <div id="publicActions" class="public-actions no-print hidden">
+        <button id="publicPrintBtn" class="btn btn-primary" type="button">طباعة / حفظ PDF</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="backendNotice" class="backend-notice no-print hidden">
+    <strong>الواجهة جاهزة، لكن النشر العام يحتاج ربط Neon.</strong>
+    <span>يمكنك المعاينة والطباعة الآن. عند إضافة إعدادات الـ API سيعمل الحفظ والـ QR العام تلقائيًا.</span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07Zo+B1L5H+nRZMLRFP0dLUfrzVJgNnG0QSBAYRBZqaM/dQkSG0J/MwVI7kYEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
