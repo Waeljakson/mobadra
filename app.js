@@ -175,11 +175,16 @@
       els.sheetEvidence.classList.add("empty");
       els.sheetEvidence.innerHTML = '<div class="evidence-placeholder">أضف صور الشواهد لتظهر هنا</div>';
     } else {
-      if (count === 1) els.sheetEvidence.classList.add("one");
-      if (count === 2) els.sheetEvidence.classList.add("two");
-      if (count === 4) els.sheetEvidence.classList.add("four");
+      els.sheetEvidence.classList.add("count-" + Math.min(count, 6));
       els.sheetEvidence.innerHTML = state.evidence
-        .map((src, i) => '<img alt="شاهد الفعالية ' + (i + 1) + '" src="' + src + '">')
+        .map((src, i) =>
+          '<figure class="evidence-frame">' +
+            '<div class="evidence-image-box">' +
+              '<img alt="شاهد الفعالية ' + (i + 1) + '" src="' + src + '">' +
+            '</div>' +
+            '<figcaption>شاهد ' + new Intl.NumberFormat("ar").format(i + 1) + '</figcaption>' +
+          '</figure>'
+        )
         .join("");
     }
 
