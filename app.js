@@ -3,8 +3,7 @@
 
   const config = window.MOBADRA_CONFIG || {};
   const DATA_API_URL = String(config.dataApiUrl || "").replace(/\/$/, "");
-  const AUTH_BASE_URL = String(config.authBaseUrl || "").replace(/\/$/, "");
-  const HAS_BACKEND = Boolean(DATA_API_URL && AUTH_BASE_URL);
+  const HAS_BACKEND = Boolean(DATA_API_URL);
   const MAX_EVIDENCE = Number(config.maxEvidenceImages || 6);
   const MAX_WIDTH = Number(config.maxImageWidth || 1400);
   const JPEG_QUALITY = Number(config.jpegQuality || 0.82);
@@ -273,42 +272,12 @@
     return key;
   };
 
-  let anonToken = "";
-  let anonTokenFetchedAt = 0;
-
-  const getAnonToken = async (force = false) => {
+  const dataApiFetch = async (path, options = {}) => {
     if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
-    const freshEnough = anonToken && (Date.now() - anonTokenFetchedAt) < 10 * 60 * 1000;
-    if (!force && freshEnough) return anonToken;
 
-    const response = await fetch(AUTH_BASE_URL + "/token/anonymous", {
-      method: "GET",
-      headers: { "Accept": "application/json" },
-      credentials: "omit"
-    });
-
-    let payload = null;
-    try { payload = await response.json(); } catch { payload = null; }
-
-    if (!response.ok) {
-      throw new Error(payload?.message || payload?.error || "تعذر إنشاء جلسة العرض العامة");
-    }
-
-    const token = payload?.token || payload?.accessToken || payload?.access_token || payload?.jwt;
-    if (!token) throw new Error("لم يتم استلام رمز الوصول من Neon Auth");
-
-    anonToken = token;
-    anonTokenFetchedAt = Date.now();
-    return anonToken;
-  };
-
-  const dataApiFetch = async (path, options = {}, retry = true) => {
-    if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
-    const token = await getAnonToken();
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": "Bearer " + token,
       ...(options.headers || {})
     };
 
@@ -316,13 +285,6 @@
       ...options,
       headers
     });
-
-    if (response.status === 401 && retry) {
-      anonToken = "";
-      anonTokenFetchedAt = 0;
-      await getAnonToken(true);
-      return dataApiFetch(path, options, false);
-    }
 
     let payload = null;
     const bodyText = await response.text();
