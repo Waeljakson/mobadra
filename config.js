@@ -8,3 +8,15 @@ window.MOBADRA_CONFIG = {
   maxImageWidth: 1100,
   jpegQuality: 0.76
 };
+
+(() => {
+  const css = document.createElement("link");
+  css.rel = "stylesheet";
+  css.href = "./platform-enhancements.css?v=1";
+  document.head.appendChild(css);
+
+  const script = document.createElement("script");
+  script.src = "./platform-enhancements.js?v=1";
+  script.defer = true;
+  document.head.appendChild(script);
+})();
