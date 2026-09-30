@@ -2134,3 +2134,232 @@ button{cursor:pointer}
 .achievement-sheet.export-capture .credit-strip{
   margin-bottom:0 !important;
 }
+
+
+/* =========================================================
+   PREMIUM EVIDENCE FRAMES + HERO EVIDENCE PREVIEW
+   ========================================================= */
+
+/* First evidence image replaces the trophy */
+.achievement-sheet .hero-evidence-frame,
+.achievement-sheet.theme-blue .hero-evidence-frame{
+  position:relative;
+  width:184px;
+  height:148px;
+  padding:8px;
+  overflow:visible;
+  border-radius:22px;
+  color:inherit;
+  background:
+    linear-gradient(145deg,#fffdf8,#ffffff);
+  border:2px solid #e3b64d;
+  box-shadow:
+    0 16px 34px rgba(7,55,104,.16),
+    0 0 0 5px rgba(255,255,255,.96),
+    0 0 0 7px rgba(13,76,136,.12);
+  transform:rotate(-2deg);
+}
+.achievement-sheet .hero-evidence-frame::before{
+  content:"";
+  position:absolute;
+  inset:7px;
+  z-index:2;
+  pointer-events:none;
+  border:1px solid rgba(10,73,132,.28);
+  border-radius:15px;
+}
+.achievement-sheet .hero-evidence-frame::after{
+  content:"";
+  position:absolute;
+  width:42px;
+  height:7px;
+  right:50%;
+  bottom:-13px;
+  transform:translateX(50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,#0a4e8d,#e5aa27,#0a4e8d);
+  box-shadow:0 4px 9px rgba(11,65,116,.14);
+}
+.hero-evidence-image{
+  position:relative;
+  z-index:1;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  border-radius:14px;
+  background:#fff;
+}
+.hero-evidence-placeholder{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:16px;
+  border-radius:14px;
+  color:#7890a6;
+  background:
+    linear-gradient(135deg,#f4f9fc,#fffaf0);
+  font-size:9px;
+  font-weight:800;
+}
+.achievement-sheet.theme-blue .hero-visual{
+  min-height:188px;
+}
+.achievement-sheet.theme-blue .visual-badge{
+  left:2px;
+  bottom:11px;
+  padding:8px 13px;
+  background:linear-gradient(90deg,#083f7d,#0d6ca8);
+}
+
+/* Polished evidence gallery frames — full photo remains visible */
+.sheet-evidence{
+  gap:12px;
+}
+.evidence-frame{
+  position:relative;
+  margin:0;
+  padding:10px 10px 8px;
+  overflow:visible;
+  border:1px solid #d9b050;
+  border-radius:18px;
+  background:
+    linear-gradient(145deg,#fffdf8 0%,#ffffff 48%,#f4f8fb 100%);
+  box-shadow:
+    0 10px 24px rgba(17,58,95,.09),
+    0 0 0 3px rgba(255,255,255,.92),
+    0 0 0 4px rgba(13,76,136,.08);
+}
+.evidence-frame::before{
+  content:"";
+  position:absolute;
+  top:-1px;
+  right:22px;
+  left:22px;
+  height:4px;
+  border-radius:0 0 8px 8px;
+  background:linear-gradient(90deg,#0a4c88,#efba3a,#0a4c88);
+}
+.evidence-frame::after{
+  content:"";
+  position:absolute;
+  inset:7px;
+  pointer-events:none;
+  border:1px solid rgba(11,75,132,.18);
+  border-radius:12px;
+}
+.evidence-image-box{
+  position:relative;
+  z-index:1;
+  padding:5px;
+  border:0;
+  border-radius:11px;
+  background:#fff;
+  box-shadow:inset 0 0 0 1px #e5edf3;
+}
+.evidence-frame img{
+  position:relative;
+  z-index:1;
+  object-fit:contain !important;
+  object-position:center !important;
+  background:#fff;
+}
+.evidence-frame figcaption{
+  position:relative;
+  z-index:3;
+  width:max-content;
+  max-width:88%;
+  margin:6px auto 0;
+  padding:3px 11px 4px;
+  border-radius:999px;
+  color:#fff !important;
+  background:linear-gradient(90deg,#093f79,#0d6da7);
+  font-size:7.5px;
+  font-weight:900;
+  box-shadow:0 4px 9px rgba(9,63,121,.10);
+}
+.achievement-sheet.theme-gold .evidence-frame,
+.achievement-sheet.theme-gold .hero-evidence-frame{
+  border-color:#b88a27;
+}
+.achievement-sheet.theme-green .evidence-frame,
+.achievement-sheet.theme-green .hero-evidence-frame{
+  border-color:#4d9a7e;
+}
+.achievement-sheet.theme-burgundy .evidence-frame,
+.achievement-sheet.theme-burgundy .hero-evidence-frame{
+  border-color:#9e536b;
+}
+
+/* School approvals */
+.principal-credit{
+  position:relative;
+}
+.principal-credit strong{
+  color:#083f7c !important;
+  font-size:9.5px !important;
+}
+.principal-credit::before{
+  content:"اعتماد";
+  display:inline-block;
+  width:max-content;
+  margin-bottom:3px;
+  padding:1px 7px 2px;
+  border-radius:999px;
+  color:#6a4500;
+  background:#ffe6a2;
+  font-size:5.8px;
+  font-weight:900;
+}
+
+/* Export-safe sizing */
+.achievement-sheet.export-capture .hero-evidence-frame{
+  width:184px !important;
+  height:148px !important;
+}
+@media print{
+  .achievement-sheet .hero-evidence-frame,
+  .achievement-sheet.theme-blue .hero-evidence-frame{
+    width:38mm;
+    height:30mm;
+    padding:1.5mm;
+    border-radius:4mm;
+    border-width:.5mm;
+  }
+  .achievement-sheet .hero-evidence-frame::before{
+    inset:1.3mm;
+    border-radius:2.8mm;
+  }
+  .achievement-sheet .hero-evidence-frame::after{
+    width:9mm;
+    height:1.3mm;
+    bottom:-2.3mm;
+  }
+  .evidence-frame{
+    padding:1.7mm 1.7mm 1.2mm;
+    border-radius:3.4mm;
+    box-shadow:none;
+  }
+  .evidence-frame::before{
+    right:5mm;
+    left:5mm;
+    height:.8mm;
+  }
+  .evidence-frame::after{
+    inset:1.2mm;
+    border-radius:2.3mm;
+  }
+  .evidence-image-box{
+    padding:.8mm;
+  }
+  .evidence-frame figcaption{
+    margin-top:1mm;
+    padding:.5mm 2mm .7mm;
+    font-size:4.4pt;
+  }
+}
