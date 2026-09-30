@@ -3252,3 +3252,304 @@ button{cursor:pointer}
   .ref-approval-box span{font-size:4.8pt}
   .ref-approval-box strong{font-size:5.5pt}
 }
+
+
+/* =========================================================
+   INTEGRATED INITIATIVE LANDING + REPORTS
+   ========================================================= */
+.auth-screen.initiative-entry{
+  min-height:100vh;
+  padding:30px 18px;
+  display:block;
+  overflow:auto;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(22,132,184,.13),transparent 24%),
+    radial-gradient(circle at 87% 18%,rgba(225,163,34,.11),transparent 20%),
+    linear-gradient(180deg,#f8fbfd,#fffaf2);
+}
+.initiative-entry-shell{
+  width:min(1120px,100%);
+  margin:auto;
+  font-family:"Cairo",Tahoma,Arial,sans-serif;
+}
+.initiative-entry-hero{
+  display:grid;
+  grid-template-columns:130px 1fr auto;
+  align-items:center;
+  gap:24px;
+  padding:28px 32px;
+  border:1px solid #dce8ef;
+  border-radius:30px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 20px 55px rgba(20,67,104,.10);
+}
+.initiative-logo{
+  width:116px;
+  height:116px;
+  display:grid;
+  place-items:center;
+}
+.initiative-logo svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.initiative-title-wrap{text-align:right}
+.initiative-chip{
+  display:inline-flex;
+  padding:6px 13px;
+  margin-bottom:7px;
+  border-radius:999px;
+  color:#73500b;
+  background:#fff0c9;
+  font-size:9px;
+  font-weight:900;
+}
+.initiative-title-wrap h1{
+  margin:0;
+  color:#0b396d;
+  font-size:34px;
+  line-height:1.45;
+  font-weight:900;
+}
+.initiative-title-wrap p{
+  margin:5px 0 0;
+  color:#4d6c83;
+  font-size:15px;
+  font-weight:700;
+}
+.initiative-entry .simple-entry-btn{
+  min-width:170px;
+  min-height:48px;
+  justify-content:center;
+}
+.initiative-definition,
+.initiative-objectives{
+  margin-top:18px;
+  padding:26px 28px;
+  border:1px solid #dce7ee;
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(25,66,98,.055);
+}
+.initiative-definition h2,
+.initiative-objectives h2{
+  margin:0 0 10px;
+  color:#133f68;
+  font-size:24px;
+  font-weight:900;
+}
+.initiative-definition p{
+  margin:0;
+  color:#3f5d73;
+  font-size:13px;
+  line-height:2;
+  font-weight:600;
+}
+.objective-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.objective-card{
+  padding:20px 18px 18px;
+  border:1px solid #e0e9ef;
+  border-radius:20px;
+  background:linear-gradient(145deg,#fff,#f8fbfd);
+}
+.objective-card:nth-child(2){
+  background:linear-gradient(145deg,#fff,#f5fbf8);
+}
+.objective-card:nth-child(3){
+  background:linear-gradient(145deg,#fff,#fff9eb);
+}
+.objective-card h3{
+  margin:0 0 11px;
+  color:#15456f;
+  font-size:15px;
+  font-weight:900;
+}
+.objective-card ul{
+  margin:0;
+  padding:0 18px 0 0;
+  color:#496579;
+  font-size:10.5px;
+  line-height:1.95;
+  font-weight:600;
+}
+.objective-card li+li{margin-top:6px}
+
+.reports-screen{
+  width:min(1180px,calc(100% - 28px));
+  margin:26px auto 46px;
+  font-family:"Cairo",Tahoma,Arial,sans-serif;
+}
+.reports-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  padding:22px 24px;
+  border:1px solid #dce7ee;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(25,66,98,.06);
+}
+.reports-head h1{
+  margin:3px 0 2px;
+  color:#123e68;
+  font-size:24px;
+  font-weight:900;
+}
+.reports-head p:last-child{
+  margin:0;
+  color:#7b8c9d;
+  font-size:10px;
+}
+.reports-head-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.report-count{
+  padding:7px 11px;
+  border-radius:999px;
+  color:#15527d;
+  background:#eaf4fa;
+  font-size:9px;
+  font-weight:900;
+}
+.reports-loading,
+.reports-empty{
+  margin-top:16px;
+  padding:28px;
+  text-align:center;
+  border:1px dashed #c9d8e2;
+  border-radius:18px;
+  color:#7d8fa0;
+  background:#fbfdfe;
+  font-size:11px;
+}
+.reports-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.report-card{
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr);
+  gap:15px;
+  padding:12px;
+  border:1px solid #dce7ee;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(25,66,98,.055);
+}
+.report-thumb{
+  width:112px;
+  height:112px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:15px;
+  color:#8798a8;
+  background:#f3f7fa;
+  font-size:9px;
+  font-weight:700;
+}
+.report-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+.report-main{min-width:0}
+.report-main h3{
+  margin:2px 0 5px;
+  color:#173f66;
+  font-size:14px;
+  line-height:1.55;
+  font-weight:900;
+}
+.report-meta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.report-meta span{
+  padding:4px 8px;
+  border-radius:999px;
+  color:#708397;
+  background:#f3f7f9;
+  font-size:7.5px;
+  font-weight:700;
+}
+.report-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.report-action{
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid #d6e3eb;
+  border-radius:10px;
+  font-family:"Cairo",sans-serif;
+  font-size:8.5px;
+  font-weight:900;
+  cursor:pointer;
+}
+.report-edit{
+  color:#0b568d;
+  background:#eef7fc;
+  border-color:#cfe4f1;
+}
+.report-remove{
+  color:#9f2f2f;
+  background:#fff2f2;
+  border-color:#f0cece;
+}
+.module-card-report-events .module-icon{
+  background:linear-gradient(145deg,#596f8a,#8194a8);
+}
+.module-card-report-newsletters .module-icon{
+  color:#fff;
+  background:linear-gradient(145deg,#7b526a,#a2768f);
+}
+
+@media(max-width:850px){
+  .initiative-entry-hero{
+    grid-template-columns:86px 1fr;
+  }
+  .initiative-logo{
+    width:80px;
+    height:80px;
+  }
+  .initiative-entry .simple-entry-btn{
+    grid-column:1/-1;
+    width:100%;
+  }
+  .initiative-title-wrap h1{font-size:25px}
+  .objective-grid{grid-template-columns:1fr}
+  .reports-list{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .auth-screen.initiative-entry{padding:14px 10px}
+  .initiative-entry-hero{
+    padding:20px 18px;
+    gap:13px;
+  }
+  .initiative-title-wrap h1{font-size:21px}
+  .initiative-title-wrap p{font-size:12px}
+  .initiative-definition,
+  .initiative-objectives{padding:20px 17px}
+  .report-card{
+    grid-template-columns:82px minmax(0,1fr);
+  }
+  .report-thumb{
+    width:82px;
+    height:82px;
+  }
+}
