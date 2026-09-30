@@ -8,31 +8,18 @@
   const MAX_EVIDENCE = Number(config.maxEvidenceImages || 6);
   const MAX_WIDTH = Number(config.maxImageWidth || 1400);
   const JPEG_QUALITY = Number(config.jpegQuality || 0.82);
-  const SESSION_KEY = "smartEdu:session";
 
   const $ = (id) => document.getElementById(id);
 
   const els = {
     toast: $("toast"),
-
     authScreen: $("authScreen"),
-    setupPanel: $("setupPanel"),
-    setupForm: $("setupForm"),
-    setupDisplayName: $("setupDisplayName"),
-    setupUsername: $("setupUsername"),
-    setupPassword: $("setupPassword"),
-    loginForm: $("loginForm"),
-    loginUsername: $("loginUsername"),
-    loginPassword: $("loginPassword"),
-    authMessage: $("authMessage"),
-
+    enterPlatformBtn: $("enterPlatformBtn"),
     platformShell: $("platformShell"),
     dashboardScreen: $("dashboardScreen"),
     openEventsModule: $("openEventsModule"),
     openNewslettersModule: $("openNewslettersModule"),
-    currentUserBadge: $("currentUserBadge"),
     homeBtn: $("homeBtn"),
-    logoutBtn: $("logoutBtn"),
 
     app: $("app"),
     form: $("eventForm"),
@@ -46,8 +33,6 @@
     publicPdfBtn: $("publicPdfBtn"),
     publicActions: $("publicActions"),
     achievementSheet: $("achievementSheet"),
-    designTheme: $("designTheme"),
-    designOptions: $("designOptions"),
     shareBtn: $("shareBtn"),
     publishBtn: $("publishBtn"),
     saveState: $("saveState"),
@@ -60,18 +45,21 @@
     shareUrl: $("shareUrl"),
     copyLinkBtn: $("copyLinkBtn"),
     shareQr: $("shareQr"),
-    sheetQr: $("sheetQr"),
+
     sheetLogo: $("sheetLogo"),
     sheetOrganization: $("sheetOrganization"),
     sheetEventName: $("sheetEventName"),
     sheetDate: $("sheetDate"),
+    sheetDirector: $("sheetDirector"),
     sheetLocation: $("sheetLocation"),
     sheetField: $("sheetField"),
+    sheetFieldCard: $("sheetFieldCard"),
     sheetAudience: $("sheetAudience"),
     sheetParticipants: $("sheetParticipants"),
     sheetGoal: $("sheetGoal"),
     sheetSummary: $("sheetSummary"),
     sheetEvidence: $("sheetEvidence"),
+    extraEvidenceSection: $("extraEvidenceSection"),
     sheetAssistants: $("sheetAssistants"),
     sheetPrincipal: $("sheetPrincipal"),
     heroEvidenceFrame: $("heroEvidenceFrame"),
@@ -110,32 +98,39 @@
     imageDataUrl: ""
   };
 
-  let platformSession = {
-    token: "",
-    user: null
-  };
-
   let anonymousJwt = "";
   let anonymousJwtAt = 0;
 
   const eventFields = [
-    "eventName", "organizationName", "eventDate", "eventLocation",
-    "participantCount", "eventField", "targetAudience", "eventGoal",
-    "summary", "assistants", "schoolPrincipal", "designTheme"
+    "eventName",
+    "organizationName",
+    "eventDate",
+    "eventLocation",
+    "participantCount",
+    "eventField",
+    "eventDirector",
+    "targetAudience",
+    "eventGoal",
+    "summary",
+    "assistants",
+    "schoolPrincipal"
   ];
-
-  const DESIGN_THEMES = ["blue", "gold", "green", "burgundy"];
 
   const toast = (message, type = "ok") => {
     if (!els.toast) return;
     els.toast.textContent = message;
     els.toast.classList.toggle("error", type === "error");
     els.toast.classList.add("show");
-    window.clearTimeout(toast._t);
-    toast._t = window.setTimeout(() => els.toast.classList.remove("show"), 2800);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => els.toast.classList.remove("show"), 2800);
   };
 
   const clean = (value) => String(value ?? "").trim();
+
+  const setHidden = (el, hidden) => {
+    if (!el) return;
+    el.classList.toggle("hidden", hidden);
+  };
 
   const formatArabicDate = (dateValue) => {
     if (!dateValue) return "—";
@@ -148,11 +143,6 @@
     } catch {
       return dateValue;
     }
-  };
-
-  const setHidden = (element, hidden) => {
-    if (!element) return;
-    element.classList.toggle("hidden", hidden);
   };
 
   const getAnonymousJwt = async (forceRefresh = false) => {
@@ -174,14 +164,12 @@
     }
 
     if (!response.ok) {
-      const error = new Error(
+      throw new Error(
         payload?.message ||
         payload?.error ||
         (typeof payload === "string" ? payload : null) ||
         ("AUTH HTTP " + response.status)
       );
-      error.status = response.status;
-      throw error;
     }
 
     const token =
@@ -194,16 +182,14 @@
       payload?.data?.accessToken ||
       payload?.data?.access_token;
 
-    if (!token || typeof token !== "string") {
-      throw new Error("تعذر الحصول على رمز الوصول العام من Neon");
-    }
+    if (!token) throw new Error("تعذر الحصول على رمز الوصول العام");
 
     anonymousJwt = token;
     anonymousJwtAt = Date.now();
-    return anonymousJwt;
+    return token;
   };
 
-  const dataApiFetch = async (path, options = {}, canRetry = true) => {
+  const dataApiFetch = async (path, options = {}, retry = true) => {
     if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
 
     const token = await getAnonymousJwt();
@@ -217,7 +203,7 @@
       }
     });
 
-    if (response.status === 401 && canRetry) {
+    if (response.status === 401 && retry) {
       anonymousJwt = "";
       anonymousJwtAt = 0;
       await getAnonymousJwt(true);
@@ -231,16 +217,14 @@
     }
 
     if (!response.ok) {
-      const message =
+      throw new Error(
         payload?.message ||
         payload?.error ||
         payload?.details ||
         payload?.hint ||
         (typeof payload === "string" ? payload : null) ||
-        ("HTTP " + response.status);
-      const error = new Error(message);
-      error.status = response.status;
-      throw error;
+        ("HTTP " + response.status)
+      );
     }
 
     return payload;
@@ -252,8 +236,8 @@
       body: JSON.stringify(body)
     });
 
-  const compressImage = (file, maxWidth = MAX_WIDTH, quality = JPEG_QUALITY) => {
-    return new Promise((resolve, reject) => {
+  const compressImage = (file, maxWidth = MAX_WIDTH, quality = JPEG_QUALITY) =>
+    new Promise((resolve, reject) => {
       if (!file || !file.type.startsWith("image/")) {
         reject(new Error("الملف ليس صورة صالحة"));
         return;
@@ -282,9 +266,8 @@
       };
       reader.readAsDataURL(file);
     });
-  };
 
-  const waitForElementAssets = async (element) => {
+  const waitForAssets = async (element) => {
     if (document.fonts?.ready) {
       try { await document.fonts.ready; } catch {}
     }
@@ -313,10 +296,9 @@
     new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
   const captureElement = async (element) => {
-    if (!window.html2canvas) throw new Error("أداة تصدير الصورة لم يتم تحميلها");
-    if (!element) throw new Error("عنصر التصدير غير موجود");
+    if (!window.html2canvas) throw new Error("أداة التصدير لم يتم تحميلها");
+    await waitForAssets(element);
 
-    await waitForElementAssets(element);
     element.classList.add("export-capture");
     await nextFrame();
 
@@ -332,21 +314,20 @@
         backgroundColor: "#ffffff",
         logging: false,
         imageTimeout: 15000,
-        scrollX: 0,
-        scrollY: 0,
         width,
         height,
+        scrollX: 0,
+        scrollY: 0,
         windowWidth: Math.max(1200, width + 100),
         windowHeight: Math.max(900, height + 100),
-        onclone: (clonedDocument) => {
-          const cloned = clonedDocument.getElementById(element.id);
+        onclone: (doc) => {
+          const cloned = doc.getElementById(element.id);
           if (!cloned) return;
           cloned.classList.add("export-capture");
           cloned.style.transform = "none";
-          cloned.style.transformOrigin = "top right";
           cloned.style.width = width + "px";
-          cloned.style.minHeight = "0";
           cloned.style.height = "auto";
+          cloned.style.minHeight = "0";
           cloned.style.overflow = "hidden";
           cloned.style.boxSizing = "border-box";
           cloned.setAttribute("dir", "rtl");
@@ -360,7 +341,7 @@
     }
   };
 
-  const downloadCanvasPng = (canvas, filename) => {
+  const downloadPng = (canvas, filename) => {
     const link = document.createElement("a");
     link.download = filename + ".png";
     link.href = canvas.toDataURL("image/png", 1);
@@ -369,8 +350,9 @@
     link.remove();
   };
 
-  const downloadCanvasPdf = (canvas, filename) => {
+  const downloadPdf = (canvas, filename) => {
     if (!window.jspdf?.jsPDF) throw new Error("أداة PDF لم يتم تحميلها");
+
     const imageData = canvas.toDataURL("image/png", 1);
     const { jsPDF } = window.jspdf;
     const ratio = canvas.width / canvas.height;
@@ -390,156 +372,52 @@
     pdf.save(filename + ".pdf");
   };
 
-  /* =============================
-     Platform authentication
-     ============================= */
-
-  const saveSession = (token, user) => {
-    platformSession = { token, user };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(platformSession));
-  };
-
-  const clearSession = () => {
-    platformSession = { token: "", user: null };
-    localStorage.removeItem(SESSION_KEY);
-  };
-
-  const readStoredSession = () => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      if (saved?.token) platformSession = saved;
-    } catch {}
-  };
-
-  const showAuthMessage = (message = "", error = false) => {
-    if (!els.authMessage) return;
-    els.authMessage.textContent = message;
-    els.authMessage.style.color = error ? "#a33b3b" : "#2e775f";
-  };
-
-  const showLoginScreen = async () => {
-    setHidden(els.platformShell, true);
-    setHidden(els.authScreen, false);
-    setHidden(els.setupPanel, true);
-    setHidden(els.loginForm, true);
-    showAuthMessage("جارٍ التحقق من إعداد المنصة...");
-
-    try {
-      const hasUsers = await rpc("smart_has_users");
-      showAuthMessage("");
-
-      if (!hasUsers) {
-        setHidden(els.setupPanel, false);
-        setHidden(els.loginForm, true);
-      } else {
-        setHidden(els.setupPanel, true);
-        setHidden(els.loginForm, false);
-      }
-    } catch (error) {
-      showAuthMessage("تعذر تحميل إعدادات الدخول: " + (error?.message || "خطأ غير معروف"), true);
-    }
-  };
-
-  const setPlatformHeader = (moduleName = "") => {
-    const loggedIn = Boolean(platformSession.user);
-    setHidden(els.currentUserBadge, !loggedIn);
-    setHidden(els.logoutBtn, !loggedIn);
-
-    if (els.currentUserBadge && loggedIn) {
-      els.currentUserBadge.textContent =
-        platformSession.user.displayName ||
-        platformSession.user.display_name ||
-        platformSession.user.username ||
-        "مستخدم";
-    }
-
-    const inEvents = moduleName === "events";
-    const inNewsletters = moduleName === "newsletters";
-    const inModule = inEvents || inNewsletters;
-
-    setHidden(els.homeBtn, !inModule);
-    setHidden(els.newEventBtn, !inEvents);
-    setHidden(els.exportPngTopBtn, !inEvents);
-    setHidden(els.exportPdfTopBtn, !inEvents);
-    setHidden(els.newsletterPngTopBtn, !inNewsletters);
-    setHidden(els.newsletterPdfTopBtn, !inNewsletters);
-  };
-
   const showDashboard = () => {
-    if (!platformSession.user) return showLoginScreen();
-
     setHidden(els.authScreen, true);
     setHidden(els.platformShell, false);
     setHidden(els.dashboardScreen, false);
     setHidden(els.app, true);
     setHidden(els.newsletterApp, true);
-    setPlatformHeader("");
-    document.title = "مبادرة التحول الذكي في التعليم";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setHidden(els.homeBtn, true);
+    setHidden(els.newEventBtn, true);
+    setHidden(els.exportPngTopBtn, true);
+    setHidden(els.exportPdfTopBtn, true);
+    setHidden(els.newsletterPngTopBtn, true);
+    setHidden(els.newsletterPdfTopBtn, true);
+    document.title = "التحول الذكي في التعليم";
   };
 
   const showEventsModule = () => {
-    if (!platformSession.user) return showLoginScreen();
-
     setHidden(els.dashboardScreen, true);
     setHidden(els.newsletterApp, true);
     setHidden(els.app, false);
+    setHidden(els.homeBtn, false);
+    setHidden(els.newEventBtn, false);
+    setHidden(els.exportPngTopBtn, false);
+    setHidden(els.exportPdfTopBtn, false);
+    setHidden(els.newsletterPngTopBtn, true);
+    setHidden(els.newsletterPdfTopBtn, true);
     if (els.editorPanel) els.editorPanel.classList.remove("hidden");
     if (els.publicActions) els.publicActions.classList.add("hidden");
     if (els.app) els.app.style.gridTemplateColumns = "";
-    setPlatformHeader("events");
     renderUploads();
     renderSheet();
-    document.title = "إنجاز الفعاليات | مبادرة التحول الذكي";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({top:0,behavior:"smooth"});
   };
 
   const showNewslettersModule = () => {
-    if (!platformSession.user) return showLoginScreen();
-
     setHidden(els.dashboardScreen, true);
     setHidden(els.app, true);
     setHidden(els.newsletterApp, false);
-    setPlatformHeader("newsletters");
+    setHidden(els.homeBtn, false);
+    setHidden(els.newEventBtn, true);
+    setHidden(els.exportPngTopBtn, true);
+    setHidden(els.exportPdfTopBtn, true);
+    setHidden(els.newsletterPngTopBtn, false);
+    setHidden(els.newsletterPdfTopBtn, false);
     renderNewsletter();
-    document.title = "النشرات | مبادرة التحول الذكي";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({top:0,behavior:"smooth"});
   };
-
-  const restorePlatformSession = async () => {
-    readStoredSession();
-    if (!platformSession.token) return false;
-
-    try {
-      const user = await rpc("smart_edu_session", { p_token: platformSession.token });
-      if (!user) {
-        clearSession();
-        return false;
-      }
-      platformSession.user = user;
-      localStorage.setItem(SESSION_KEY, JSON.stringify(platformSession));
-      return true;
-    } catch {
-      clearSession();
-      return false;
-    }
-  };
-
-  const login = async (username, password) => {
-    const payload = await rpc("smart_edu_login", {
-      p_username: clean(username),
-      p_password: String(password || "")
-    });
-
-    if (!payload?.token || !payload?.user) throw new Error("تعذر إنشاء جلسة المستخدم");
-    saveSession(payload.token, payload.user);
-    if (els.loginPassword) els.loginPassword.value = "";
-    showDashboard();
-  };
-
-  /* =============================
-     Activity achievement module
-     ============================= */
 
   const getEventData = () => {
     const data = {};
@@ -547,37 +425,19 @@
       const input = $(name);
       data[name] = input ? clean(input.value) : "";
     });
-    data.participantCount = data.participantCount ? Number(data.participantCount) : null;
+
+    data.participantCount = data.participantCount
+      ? Number(data.participantCount)
+      : null;
     data.logoDataUrl = eventState.logoDataUrl;
     data.evidence = [...eventState.evidence];
     data.id = eventState.id;
     data.slug = eventState.slug;
+    data.designTheme = "blue";
     return data;
   };
 
-  const applyDesignTheme = (theme) => {
-    const selected = DESIGN_THEMES.includes(theme) ? theme : "blue";
-    if (els.designTheme) els.designTheme.value = selected;
-
-    if (els.achievementSheet) {
-      DESIGN_THEMES.forEach((name) => els.achievementSheet.classList.remove("theme-" + name));
-      els.achievementSheet.classList.add("theme-" + selected);
-    }
-
-    if (els.designOptions) {
-      els.designOptions.querySelectorAll(".design-option").forEach((button) => {
-        const active = button.dataset.theme === selected;
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", active ? "true" : "false");
-      });
-    }
-
-    return selected;
-  };
-
   const renderUploads = () => {
-    if (!els.logoPreview || !els.evidenceManager) return;
-
     if (eventState.logoDataUrl) {
       els.logoPreview.classList.remove("empty");
       els.logoPreview.innerHTML =
@@ -592,32 +452,33 @@
       els.evidenceManager.textContent = "لا توجد صور مضافة";
     } else {
       els.evidenceManager.classList.remove("empty");
-      els.evidenceManager.innerHTML = eventState.evidence.map((src, index) => (
+      els.evidenceManager.innerHTML = eventState.evidence.map((src,index) =>
         '<div class="evidence-thumb">' +
-          '<img alt="شاهد ' + (index + 1) + '" src="' + src + '">' +
+          '<img alt="شاهد ' + (index+1) + '" src="' + src + '">' +
           '<button class="remove-evidence" type="button" data-index="' + index + '" aria-label="حذف الصورة">×</button>' +
         '</div>'
-      )).join("");
+      ).join("");
     }
   };
 
   const renderSheet = () => {
     if (!els.achievementSheet) return;
     const data = getEventData();
-    applyDesignTheme(data.designTheme || "blue");
 
     els.sheetOrganization.textContent = data.organizationName || "اسم المؤسسة / المدرسة";
     els.sheetEventName.textContent = data.eventName || "اسم الفعالية";
-    els.sheetDate.textContent = "التاريخ: " + formatArabicDate(data.eventDate);
-    els.sheetLocation.textContent = "المكان: " + (data.eventLocation || "—");
+    els.sheetDate.textContent = formatArabicDate(data.eventDate);
+    els.sheetDirector.textContent = data.eventDirector || "—";
+    els.sheetLocation.textContent = data.eventLocation || "—";
     els.sheetField.textContent = data.eventField || "—";
+    els.sheetFieldCard.textContent = data.eventField || "—";
     els.sheetAudience.textContent = data.targetAudience || "—";
     els.sheetParticipants.textContent =
       data.participantCount === null || Number.isNaN(data.participantCount)
         ? "—"
         : new Intl.NumberFormat("ar").format(data.participantCount);
-    els.sheetGoal.textContent = data.eventGoal || "يظهر هنا هدف الفعالية بعد إدخاله في النموذج.";
-    els.sheetSummary.textContent = data.summary || "يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.";
+    els.sheetGoal.textContent = data.eventGoal || "يظهر هنا هدف الفعالية.";
+    els.sheetSummary.textContent = data.summary || "يظهر هنا وصف مختصر لما تم تنفيذه.";
     els.sheetAssistants.textContent = data.assistants || "—";
     els.sheetPrincipal.textContent = data.schoolPrincipal || "—";
 
@@ -630,38 +491,51 @@
 
     if (eventState.evidence.length) {
       els.heroEvidenceFrame.innerHTML =
-        '<img class="hero-evidence-image" alt="صورة مختارة من شواهد الفعالية" src="' +
+        '<img class="hero-evidence-image" alt="صورة الفعالية" src="' +
         eventState.evidence[0] +
         '">';
     } else {
       els.heroEvidenceFrame.innerHTML =
-        '<div class="hero-evidence-placeholder"><span>صورة من الشواهد</span></div>';
+        '<div class="hero-evidence-placeholder"><span>صورة الفعالية</span></div>';
     }
 
-    const count = eventState.evidence.length;
-    els.sheetEvidence.className = "sheet-evidence";
-
-    if (!count) {
-      els.sheetEvidence.classList.add("empty");
-      els.sheetEvidence.innerHTML =
-        '<div class="evidence-placeholder">أضف صور الشواهد لتظهر هنا</div>';
-    } else {
-      els.sheetEvidence.classList.add("count-" + Math.min(count, 6));
-      els.sheetEvidence.innerHTML = eventState.evidence
-        .map((src, i) =>
-          '<figure class="evidence-frame">' +
+    const extras = eventState.evidence.slice(1);
+    if (extras.length) {
+      setHidden(els.extraEvidenceSection,false);
+      els.sheetEvidence.innerHTML = extras
+        .map((src,i) =>
+          '<figure class="evidence-frame ref-extra-frame">' +
             '<div class="evidence-image-box">' +
-              '<img alt="شاهد الفعالية ' + (i + 1) + '" src="' + src + '">' +
+              '<img alt="شاهد إضافي ' + (i+1) + '" src="' + src + '">' +
             '</div>' +
           '</figure>'
-        )
-        .join("");
+        ).join("");
+    } else {
+      setHidden(els.extraEvidenceSection,true);
+      els.sheetEvidence.innerHTML = "";
     }
-
-    if (eventState.publishedUrl) drawQrs(eventState.publishedUrl);
   };
 
-  const populateEventForm = (data = {}) => {
+  const normalizeRemoteEvent = (raw={}) => ({
+    id: raw.id,
+    slug: raw.slug,
+    eventName: raw.event_name ?? "",
+    organizationName: raw.organization_name ?? "",
+    eventDate: raw.event_date ?? "",
+    eventLocation: raw.event_location ?? "",
+    participantCount: raw.participant_count ?? "",
+    eventField: raw.event_field ?? "",
+    eventDirector: raw.event_director ?? "",
+    targetAudience: raw.target_audience ?? "",
+    eventGoal: raw.event_goal ?? "",
+    summary: raw.summary ?? "",
+    assistants: raw.assistants ?? "",
+    schoolPrincipal: raw.school_principal ?? "",
+    logoDataUrl: raw.logo_data_url ?? "",
+    evidence: raw.evidence_images ?? []
+  });
+
+  const populateEventForm = (data={}) => {
     eventFields.forEach((name) => {
       const input = $(name);
       if (input) input.value = data[name] ?? "";
@@ -680,32 +554,12 @@
     renderSheet();
   };
 
-  const normalizeRemoteEvent = (raw = {}) => ({
-    id: raw.id,
-    slug: raw.slug,
-    eventName: raw.eventName ?? raw.event_name ?? "",
-    organizationName: raw.organizationName ?? raw.organization_name ?? "",
-    eventDate: raw.eventDate ?? raw.event_date ?? "",
-    eventLocation: raw.eventLocation ?? raw.event_location ?? "",
-    participantCount: raw.participantCount ?? raw.participant_count ?? "",
-    eventField: raw.eventField ?? raw.event_field ?? "",
-    targetAudience: raw.targetAudience ?? raw.target_audience ?? "",
-    eventGoal: raw.eventGoal ?? raw.event_goal ?? "",
-    summary: raw.summary ?? "",
-    designTheme: raw.designTheme ?? raw.design_theme ?? "blue",
-    assistants: raw.assistants ?? "",
-    schoolPrincipal: raw.schoolPrincipal ?? raw.school_principal ?? "",
-    logoDataUrl: raw.logoDataUrl ?? raw.logo_data_url ?? "",
-    evidence: raw.evidence ?? raw.evidence_images ?? []
-  });
-
   const slugify = () => {
     const bytes = new Uint8Array(4);
-    if (window.crypto?.getRandomValues) {
-      window.crypto.getRandomValues(bytes);
-      return "event-" +
-        Date.now().toString(36) + "-" +
-        Array.from(bytes).map(v => v.toString(16).padStart(2,"0")).join("");
+    if (crypto?.getRandomValues) {
+      crypto.getRandomValues(bytes);
+      return "event-" + Date.now().toString(36) + "-" +
+        Array.from(bytes).map(v=>v.toString(16).padStart(2,"0")).join("");
     }
     return "event-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,10);
   };
@@ -714,80 +568,57 @@
     const url = new URL(window.location.href);
     url.search = "";
     url.hash = "";
-    url.searchParams.set("event", slug);
+    url.searchParams.set("event",slug);
     return url.toString();
   };
 
-  const drawQr = (container, url, size) => {
-    if (!container) return;
-    container.innerHTML = "";
-    if (!window.QRCode || !url) {
-      container.innerHTML = "<span>QR</span>";
-      return;
-    }
-    new QRCode(container, {
-      text: url,
-      width: size,
-      height: size,
-      correctLevel: QRCode.CorrectLevel.M
+  const drawShareQr = (url) => {
+    if (!els.shareQr) return;
+    els.shareQr.innerHTML = "";
+    if (!window.QRCode || !url) return;
+    new QRCode(els.shareQr,{
+      text:url,
+      width:92,
+      height:92,
+      correctLevel:QRCode.CorrectLevel.M
     });
   };
 
-  const drawQrs = (url) => {
-    drawQr(els.sheetQr, url, 80);
-    drawQr(els.shareQr, url, 92);
-  };
-
-  const setPublished = (slug, url) => {
+  const setPublished = (slug,url) => {
     eventState.slug = slug;
     eventState.publishedUrl = url || makePublicUrl(slug);
-    if (els.shareUrl) els.shareUrl.value = eventState.publishedUrl;
-    setHidden(els.sharePanel, false);
-    setHidden(els.shareBtn, false);
-    if (els.saveState) {
-      els.saveState.textContent = "منشور";
-      els.saveState.style.background = "#e8f7ef";
-      els.saveState.style.color = "#157347";
-    }
-    drawQrs(eventState.publishedUrl);
+    els.shareUrl.value = eventState.publishedUrl;
+    setHidden(els.sharePanel,false);
+    setHidden(els.shareBtn,false);
+    els.saveState.textContent = "منشور";
+    els.saveState.style.background = "#e8f7ef";
+    els.saveState.style.color = "#157347";
+    drawShareQr(eventState.publishedUrl);
   };
 
   const publishEvent = async () => {
-    if (!els.form?.reportValidity()) return;
-
-    if (!platformSession.token) {
-      toast("انتهت جلسة المستخدم. سجل الدخول مرة أخرى.", "error");
-      clearSession();
-      return showLoginScreen();
-    }
+    if (!els.form.reportValidity()) return;
 
     const data = getEventData();
     els.publishBtn.disabled = true;
     els.publishBtn.textContent = "جارٍ النشر...";
 
     try {
-      const body = { ...data, slug: data.slug || slugify() };
-
-      const payload = await rpc("mobadra_save_event", {
-        p_admin_key: platformSession.token,
-        p_event: body
+      const body = {...data,slug:data.slug || slugify()};
+      const payload = await rpc("mobadra_save_event",{
+        p_admin_key:"",
+        p_event:body
       });
 
       const remote = Array.isArray(payload) ? payload[0] : payload;
       const saved = normalizeRemoteEvent(remote || body);
 
       eventState.id = saved.id || eventState.id;
-      populateEventForm({ ...data, ...saved, slug: saved.slug || body.slug });
-      setPublished(saved.slug || body.slug, makePublicUrl(saved.slug || body.slug));
+      populateEventForm({...data,...saved,slug:saved.slug || body.slug});
+      setPublished(saved.slug || body.slug,makePublicUrl(saved.slug || body.slug));
       toast("تم نشر ورقة الإنجاز بنجاح");
     } catch (error) {
-      const message = String(error?.message || "");
-      if (/auth_required/i.test(message)) {
-        clearSession();
-        toast("انتهت جلسة المستخدم. سجل الدخول مرة أخرى.", "error");
-        return showLoginScreen();
-      }
-      toast("تعذر النشر: " + (message || "خطأ غير معروف"), "error");
+      toast("تعذر النشر: " + (error?.message || "خطأ غير معروف"),"error");
     } finally {
       els.publishBtn.disabled = false;
       els.publishBtn.textContent = eventState.id ? "حفظ التعديلات" : "نشر الفعالية";
@@ -795,56 +626,50 @@
   };
 
   const loadPublicEvent = async (slug) => {
-    setHidden(els.authScreen, true);
-    setHidden(els.platformShell, false);
-    setHidden(els.dashboardScreen, true);
-    setHidden(els.newsletterApp, true);
-    setHidden(els.app, false);
-
-    document.body.classList.add("public-view");
-    if (els.editorPanel) els.editorPanel.classList.add("hidden");
-    setHidden(els.publicActions, false);
-    setHidden(els.newEventBtn, true);
-    setHidden(els.shareBtn, true);
-    setHidden(els.currentUserBadge, true);
-    setHidden(els.logoutBtn, true);
-    setHidden(els.homeBtn, true);
-    setHidden(els.exportPngTopBtn, true);
-    setHidden(els.exportPdfTopBtn, true);
-    if (els.app) els.app.style.gridTemplateColumns = "1fr";
+    setHidden(els.authScreen,true);
+    setHidden(els.platformShell,false);
+    setHidden(els.dashboardScreen,true);
+    setHidden(els.newsletterApp,true);
+    setHidden(els.app,false);
+    setHidden(els.homeBtn,true);
+    setHidden(els.newEventBtn,true);
+    setHidden(els.exportPngTopBtn,true);
+    setHidden(els.exportPdfTopBtn,true);
+    setHidden(els.newsletterPngTopBtn,true);
+    setHidden(els.newsletterPdfTopBtn,true);
+    setHidden(els.publicActions,false);
+    els.editorPanel.classList.add("hidden");
+    els.app.style.gridTemplateColumns = "1fr";
 
     try {
       const params = new URLSearchParams({
-        select: "*",
-        slug: "eq." + slug,
-        is_published: "eq.true",
-        limit: "1"
+        select:"*",
+        slug:"eq." + slug,
+        is_published:"eq.true",
+        limit:"1"
       });
 
-      const payload = await dataApiFetch("/mobadra_events?" + params.toString(), {
-        method: "GET"
+      const payload = await dataApiFetch("/mobadra_events?" + params.toString(),{
+        method:"GET"
       });
 
       const row = Array.isArray(payload) ? payload[0] : payload;
       if (!row) throw new Error("لم يتم العثور على الفعالية");
 
-      const data = normalizeRemoteEvent(row);
-      populateEventForm(data);
-      eventState.slug = data.slug || slug;
-      eventState.publishedUrl = makePublicUrl(eventState.slug);
+      populateEventForm(normalizeRemoteEvent(row));
+      eventState.slug = row.slug;
+      eventState.publishedUrl = makePublicUrl(row.slug);
       renderSheet();
-      drawQrs(eventState.publishedUrl);
-      document.title = (data.eventName || "ورقة إنجاز") + " | مبادرة التحول الذكي";
+      document.title = (row.event_name || "ورقة إنجاز") + " | التحول الذكي في التعليم";
     } catch (error) {
-      toast(error?.message || "تعذر تحميل الفعالية", "error");
-      if (els.sheetEventName) els.sheetEventName.textContent = "تعذر تحميل الفعالية";
+      toast(error?.message || "تعذر تحميل الفعالية","error");
     }
   };
 
-  const exportEventFileName = () => {
+  const eventFilename = () => {
     const base = clean($("eventName")?.value || "فعالية")
-      .replace(/[\\/:*?"<>|]+/g, "-")
-      .replace(/\s+/g, " ")
+      .replace(/[\\/:*?"<>|]+/g,"-")
+      .replace(/\s+/g," ")
       .slice(0,80);
     return "ورقة إنجاز - " + (base || "فعالية");
   };
@@ -853,10 +678,10 @@
     try {
       toast("جارٍ تجهيز PNG...");
       const canvas = await captureElement(els.achievementSheet);
-      downloadCanvasPng(canvas, exportEventFileName());
+      downloadPng(canvas,eventFilename());
       toast("تم تجهيز PNG");
     } catch (error) {
-      toast("تعذر تصدير PNG: " + (error?.message || "خطأ غير معروف"), "error");
+      toast("تعذر تصدير PNG: " + (error?.message || "خطأ غير معروف"),"error");
     }
   };
 
@@ -864,27 +689,25 @@
     try {
       toast("جارٍ تجهيز PDF...");
       const canvas = await captureElement(els.achievementSheet);
-      downloadCanvasPdf(canvas, exportEventFileName());
+      downloadPdf(canvas,eventFilename());
       toast("تم تجهيز PDF");
     } catch (error) {
-      toast("تعذر تصدير PDF: " + (error?.message || "خطأ غير معروف"), "error");
+      toast("تعذر تصدير PDF: " + (error?.message || "خطأ غير معروف"),"error");
     }
   };
 
-  const resetEventForm = () => {
-    if (!window.confirm("إنشاء فعالية جديدة؟ سيتم مسح البيانات الحالية من النموذج فقط.")) return;
+  const resetEvent = () => {
+    if (!confirm("إنشاء فعالية جديدة؟ سيتم مسح البيانات الحالية من النموذج فقط.")) return;
     els.form.reset();
-    if (els.designTheme) els.designTheme.value = "blue";
-    eventState = { id:null, slug:null, logoDataUrl:"", evidence:[], publishedUrl:"" };
+    eventState={id:null,slug:null,logoDataUrl:"",evidence:[],publishedUrl:""};
     setHidden(els.sharePanel,true);
     setHidden(els.shareBtn,true);
-    els.saveState.textContent = "مسودة";
+    els.saveState.textContent="مسودة";
     els.saveState.removeAttribute("style");
-    els.publishBtn.textContent = "نشر الفعالية";
-    applyDesignTheme("blue");
+    els.publishBtn.textContent="نشر الفعالية";
     renderUploads();
     renderSheet();
-    window.scrollTo({ top:0, behavior:"smooth" });
+    window.scrollTo({top:0,behavior:"smooth"});
   };
 
   const copyLink = async () => {
@@ -901,13 +724,12 @@
 
   const shareLink = async () => {
     if (!eventState.publishedUrl) return;
-    const data = getEventData();
     if (navigator.share) {
       try {
         await navigator.share({
-          title: data.eventName || "ورقة إنجاز فعالية",
-          text: "ورقة إنجاز الفعالية",
-          url: eventState.publishedUrl
+          title:clean($("eventName")?.value) || "ورقة إنجاز فعالية",
+          text:"ورقة إنجاز الفعالية",
+          url:eventState.publishedUrl
         });
         return;
       } catch {}
@@ -915,84 +737,65 @@
     await copyLink();
   };
 
-  /* =============================
-     Newsletters module
-     ============================= */
-
   const getNewsletterData = () => ({
-    id: newsletterState.id,
-    slug: newsletterState.slug,
-    title: clean(els.newsletterTitle?.value),
-    preparedBy: clean(els.newsletterPreparedBy?.value),
-    newsletterDate: clean(els.newsletterDate?.value),
-    imageDataUrl: newsletterState.imageDataUrl
+    id:newsletterState.id,
+    slug:newsletterState.slug,
+    title:clean(els.newsletterTitle?.value),
+    preparedBy:clean(els.newsletterPreparedBy?.value),
+    newsletterDate:clean(els.newsletterDate?.value),
+    imageDataUrl:newsletterState.imageDataUrl
   });
 
   const renderNewsletter = () => {
     if (!els.newsletterSheet) return;
-    const data = getNewsletterData();
+    const data=getNewsletterData();
 
-    els.newsletterSheetTitle.textContent = data.title || "عنوان النشرة";
-    els.newsletterSheetPreparedBy.textContent = data.preparedBy || "—";
-    els.newsletterSheetDate.textContent = formatArabicDate(data.newsletterDate);
+    els.newsletterSheetTitle.textContent=data.title || "عنوان النشرة";
+    els.newsletterSheetPreparedBy.textContent=data.preparedBy || "—";
+    els.newsletterSheetDate.textContent=formatArabicDate(data.newsletterDate);
 
     if (newsletterState.imageDataUrl) {
       els.newsletterSheetImage.classList.remove("empty");
-      els.newsletterSheetImage.innerHTML =
-        '<img alt="صورة النشرة" src="' + newsletterState.imageDataUrl + '">';
-
+      els.newsletterSheetImage.innerHTML='<img alt="صورة النشرة" src="' + newsletterState.imageDataUrl + '">';
       els.newsletterImagePreview.classList.remove("empty");
-      els.newsletterImagePreview.innerHTML =
-        '<img alt="صورة النشرة" src="' + newsletterState.imageDataUrl + '">';
+      els.newsletterImagePreview.innerHTML='<img alt="صورة النشرة" src="' + newsletterState.imageDataUrl + '">';
     } else {
       els.newsletterSheetImage.classList.add("empty");
-      els.newsletterSheetImage.innerHTML = "<span>صورة النشرة</span>";
+      els.newsletterSheetImage.innerHTML="<span>صورة النشرة</span>";
       els.newsletterImagePreview.classList.add("empty");
-      els.newsletterImagePreview.textContent = "لم يتم رفع صورة";
+      els.newsletterImagePreview.textContent="لم يتم رفع صورة";
     }
   };
 
   const saveNewsletter = async () => {
-    if (!els.newsletterForm?.reportValidity()) return;
+    if (!els.newsletterForm.reportValidity()) return;
 
-    if (!platformSession.token) {
-      toast("انتهت جلسة المستخدم. سجل الدخول مرة أخرى.", "error");
-      clearSession();
-      return showLoginScreen();
-    }
-
-    const data = getNewsletterData();
-    els.saveNewsletterBtn.disabled = true;
-    els.saveNewsletterBtn.textContent = "جارٍ الحفظ...";
+    const data=getNewsletterData();
+    els.saveNewsletterBtn.disabled=true;
+    els.saveNewsletterBtn.textContent="جارٍ الحفظ...";
 
     try {
-      const saved = await rpc("smart_save_newsletter", {
-        p_token: platformSession.token,
-        p_newsletter: data
+      const saved=await rpc("smart_save_newsletter",{
+        p_token:"",
+        p_newsletter:data
       });
 
-      newsletterState.id = saved?.id || newsletterState.id;
-      newsletterState.slug = saved?.slug || newsletterState.slug;
-      els.newsletterSaveState.textContent = "محفوظ";
-      els.newsletterSaveState.style.background = "#e8f7ef";
-      els.newsletterSaveState.style.color = "#157347";
+      newsletterState.id=saved?.id || newsletterState.id;
+      newsletterState.slug=saved?.slug || newsletterState.slug;
+      els.newsletterSaveState.textContent="محفوظ";
+      els.newsletterSaveState.style.background="#e8f7ef";
+      els.newsletterSaveState.style.color="#157347";
       toast("تم حفظ النشرة");
     } catch (error) {
-      const message = String(error?.message || "");
-      if (/auth_required/i.test(message)) {
-        clearSession();
-        toast("انتهت جلسة المستخدم. سجل الدخول مرة أخرى.", "error");
-        return showLoginScreen();
-      }
-      toast("تعذر حفظ النشرة: " + (message || "خطأ غير معروف"), "error");
+      toast("تعذر حفظ النشرة: " + (error?.message || "خطأ غير معروف"),"error");
     } finally {
-      els.saveNewsletterBtn.disabled = false;
-      els.saveNewsletterBtn.textContent = newsletterState.id ? "حفظ التعديلات" : "حفظ النشرة";
+      els.saveNewsletterBtn.disabled=false;
+      els.saveNewsletterBtn.textContent=newsletterState.id ? "حفظ التعديلات" : "حفظ النشرة";
     }
   };
 
-  const newsletterFileName = () => {
-    const base = clean(els.newsletterTitle?.value || "نشرة")
+  const newsletterFilename = () => {
+    const base=clean(els.newsletterTitle?.value || "نشرة")
       .replace(/[\\/:*?"<>|]+/g,"-")
       .replace(/\s+/g," ")
       .slice(0,80);
@@ -1001,214 +804,144 @@
 
   const exportNewsletterPng = async () => {
     try {
-      toast("جارٍ تجهيز PNG...");
-      const canvas = await captureElement(els.newsletterSheet);
-      downloadCanvasPng(canvas, newsletterFileName());
+      const canvas=await captureElement(els.newsletterSheet);
+      downloadPng(canvas,newsletterFilename());
       toast("تم تجهيز PNG");
     } catch (error) {
-      toast("تعذر تصدير PNG: " + (error?.message || "خطأ غير معروف"), "error");
+      toast("تعذر تصدير PNG: " + (error?.message || "خطأ غير معروف"),"error");
     }
   };
 
   const exportNewsletterPdf = async () => {
     try {
-      toast("جارٍ تجهيز PDF...");
-      const canvas = await captureElement(els.newsletterSheet);
-      downloadCanvasPdf(canvas, newsletterFileName());
+      const canvas=await captureElement(els.newsletterSheet);
+      downloadPdf(canvas,newsletterFilename());
       toast("تم تجهيز PDF");
     } catch (error) {
-      toast("تعذر تصدير PDF: " + (error?.message || "خطأ غير معروف"), "error");
+      toast("تعذر تصدير PDF: " + (error?.message || "خطأ غير معروف"),"error");
     }
   };
 
-  /* =============================
-     Event listeners
-     ============================= */
+  els.enterPlatformBtn?.addEventListener("click",showDashboard);
+  els.homeBtn?.addEventListener("click",showDashboard);
+  els.openEventsModule?.addEventListener("click",showEventsModule);
+  els.openNewslettersModule?.addEventListener("click",showNewslettersModule);
 
-  els.setupForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const username = clean(els.setupUsername.value);
-    const displayName = clean(els.setupDisplayName.value);
-    const password = els.setupPassword.value;
-
-    showAuthMessage("جارٍ إنشاء الحساب...");
-    try {
-      await rpc("smart_create_first_user", {
-        p_username: username,
-        p_display_name: displayName,
-        p_password: password
-      });
-      await login(username, password);
-      toast("تم إنشاء أول مستخدم");
-    } catch (error) {
-      showAuthMessage("تعذر إنشاء الحساب: " + (error?.message || "خطأ غير معروف"), true);
-    }
-  });
-
-  els.loginForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    showAuthMessage("جارٍ تسجيل الدخول...");
-    try {
-      await login(els.loginUsername.value, els.loginPassword.value);
-      showAuthMessage("");
-    } catch (error) {
-      showAuthMessage(
-        /invalid_credentials/i.test(String(error?.message || ""))
-          ? "اسم المستخدم أو كلمة المرور غير صحيحة."
-          : "تعذر تسجيل الدخول: " + (error?.message || "خطأ غير معروف"),
-        true
-      );
-    }
-  });
-
-  els.logoutBtn?.addEventListener("click", () => {
-    clearSession();
-    showLoginScreen();
-  });
-
-  els.homeBtn?.addEventListener("click", showDashboard);
-  els.openEventsModule?.addEventListener("click", showEventsModule);
-  els.openNewslettersModule?.addEventListener("click", showNewslettersModule);
-
-  els.designOptions?.addEventListener("click", (event) => {
-    const button = event.target.closest(".design-option");
-    if (!button) return;
-    applyDesignTheme(button.dataset.theme || "blue");
-    if (els.saveState) els.saveState.textContent = eventState.id ? "تعديلات غير محفوظة" : "مسودة";
+  els.form?.addEventListener("input",() => {
+    els.saveState.textContent=eventState.id ? "تعديلات غير محفوظة" : "مسودة";
     renderSheet();
   });
 
-  els.form?.addEventListener("input", () => {
-    if (els.saveState) els.saveState.textContent = eventState.id ? "تعديلات غير محفوظة" : "مسودة";
-    renderSheet();
-  });
-
-  els.form?.addEventListener("submit", (event) => {
+  els.form?.addEventListener("submit",(event) => {
     event.preventDefault();
     publishEvent();
   });
 
-  els.logoInput?.addEventListener("change", async () => {
-    const file = els.logoInput.files?.[0];
+  els.logoInput?.addEventListener("change",async() => {
+    const file=els.logoInput.files?.[0];
     if (!file) return;
     try {
-      eventState.logoDataUrl = await compressImage(file,900,.9);
+      eventState.logoDataUrl=await compressImage(file,900,.9);
       renderUploads();
       renderSheet();
       toast("تم إضافة الشعار");
     } catch (error) {
       toast(error?.message || "تعذر إضافة الشعار","error");
     } finally {
-      els.logoInput.value = "";
+      els.logoInput.value="";
     }
   });
 
-  els.evidenceInput?.addEventListener("change", async () => {
-    const files = Array.from(els.evidenceInput.files || []);
+  els.evidenceInput?.addEventListener("change",async() => {
+    const files=Array.from(els.evidenceInput.files || []);
     if (!files.length) return;
 
-    const available = Math.max(0,MAX_EVIDENCE-eventState.evidence.length);
+    const available=Math.max(0,MAX_EVIDENCE-eventState.evidence.length);
     if (!available) {
       toast("الحد الأقصى " + MAX_EVIDENCE + " صور","error");
-      els.evidenceInput.value = "";
+      els.evidenceInput.value="";
       return;
     }
 
     try {
-      const selected = files.slice(0,available);
-      const compressed = [];
+      const selected=files.slice(0,available);
+      const compressed=[];
       for (const file of selected) compressed.push(await compressImage(file));
       eventState.evidence.push(...compressed);
       renderUploads();
       renderSheet();
-      toast(files.length > available
-        ? "تمت إضافة " + available + " صور فقط بسبب الحد الأقصى"
-        : "تمت إضافة الشواهد");
+      toast("تمت إضافة الشواهد");
     } catch (error) {
       toast(error?.message || "تعذر إضافة الصور","error");
     } finally {
-      els.evidenceInput.value = "";
+      els.evidenceInput.value="";
     }
   });
 
-  els.evidenceManager?.addEventListener("click", (event) => {
-    const button = event.target.closest(".remove-evidence");
-    if (!button) return;
-    eventState.evidence.splice(Number(button.dataset.index),1);
+  els.evidenceManager?.addEventListener("click",(event) => {
+    const btn=event.target.closest(".remove-evidence");
+    if (!btn) return;
+    eventState.evidence.splice(Number(btn.dataset.index),1);
     renderUploads();
     renderSheet();
   });
 
-  els.newEventBtn?.addEventListener("click", resetEventForm);
-  els.exportPngTopBtn?.addEventListener("click", exportEventPng);
-  els.exportPdfTopBtn?.addEventListener("click", exportEventPdf);
-  els.exportPngBtn?.addEventListener("click", exportEventPng);
-  els.exportPdfBtn?.addEventListener("click", exportEventPdf);
-  els.publicPngBtn?.addEventListener("click", exportEventPng);
-  els.publicPdfBtn?.addEventListener("click", exportEventPdf);
-  els.copyLinkBtn?.addEventListener("click", copyLink);
-  els.shareBtn?.addEventListener("click", shareLink);
+  els.newEventBtn?.addEventListener("click",resetEvent);
+  els.exportPngTopBtn?.addEventListener("click",exportEventPng);
+  els.exportPdfTopBtn?.addEventListener("click",exportEventPdf);
+  els.exportPngBtn?.addEventListener("click",exportEventPng);
+  els.exportPdfBtn?.addEventListener("click",exportEventPdf);
+  els.publicPngBtn?.addEventListener("click",exportEventPng);
+  els.publicPdfBtn?.addEventListener("click",exportEventPdf);
+  els.copyLinkBtn?.addEventListener("click",copyLink);
+  els.shareBtn?.addEventListener("click",shareLink);
 
-  els.newsletterForm?.addEventListener("input", () => {
-    if (els.newsletterSaveState) {
-      els.newsletterSaveState.textContent = newsletterState.id ? "تعديلات غير محفوظة" : "مسودة";
-      els.newsletterSaveState.removeAttribute("style");
-    }
+  els.newsletterForm?.addEventListener("input",() => {
+    els.newsletterSaveState.textContent=newsletterState.id ? "تعديلات غير محفوظة" : "مسودة";
+    els.newsletterSaveState.removeAttribute("style");
     renderNewsletter();
   });
 
-  els.newsletterForm?.addEventListener("submit", (event) => {
+  els.newsletterForm?.addEventListener("submit",(event) => {
     event.preventDefault();
     saveNewsletter();
   });
 
-  els.newsletterImageInput?.addEventListener("change", async () => {
-    const file = els.newsletterImageInput.files?.[0];
+  els.newsletterImageInput?.addEventListener("change",async() => {
+    const file=els.newsletterImageInput.files?.[0];
     if (!file) return;
     try {
-      newsletterState.imageDataUrl = await compressImage(file,1600,.88);
+      newsletterState.imageDataUrl=await compressImage(file,1600,.88);
       renderNewsletter();
       toast("تم إضافة صورة النشرة");
     } catch (error) {
       toast(error?.message || "تعذر إضافة الصورة","error");
     } finally {
-      els.newsletterImageInput.value = "";
+      els.newsletterImageInput.value="";
     }
   });
 
-  els.newsletterPngBtn?.addEventListener("click", exportNewsletterPng);
-  els.newsletterPdfBtn?.addEventListener("click", exportNewsletterPdf);
-  els.newsletterPngTopBtn?.addEventListener("click", exportNewsletterPng);
-  els.newsletterPdfTopBtn?.addEventListener("click", exportNewsletterPdf);
+  els.newsletterPngBtn?.addEventListener("click",exportNewsletterPng);
+  els.newsletterPdfBtn?.addEventListener("click",exportNewsletterPdf);
+  els.newsletterPngTopBtn?.addEventListener("click",exportNewsletterPng);
+  els.newsletterPdfTopBtn?.addEventListener("click",exportNewsletterPdf);
 
-  /* =============================
-     Startup
-     ============================= */
-
-  const start = async () => {
-    if (!HAS_BACKEND) {
-      setHidden(els.backendNotice,false);
-      return;
-    }
-
+  const start=async() => {
     renderUploads();
     renderSheet();
     renderNewsletter();
 
-    const publicSlug = new URLSearchParams(window.location.search).get("event");
+    if (!HAS_BACKEND) setHidden(els.backendNotice,false);
+    else setHidden(els.backendNotice,true);
+
+    const publicSlug=new URLSearchParams(window.location.search).get("event");
     if (publicSlug) {
       await loadPublicEvent(publicSlug);
       return;
     }
 
-    setHidden(els.backendNotice,true);
-
-    const restored = await restorePlatformSession();
-    if (restored) {
-      showDashboard();
-    } else {
-      await showLoginScreen();
-    }
+    setHidden(els.authScreen,false);
+    setHidden(els.platformShell,true);
   };
 
   start();
