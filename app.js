@@ -216,7 +216,6 @@
             '<div class="evidence-image-box">' +
               '<img alt="شاهد الفعالية ' + (i + 1) + '" src="' + src + '">' +
             '</div>' +
-            '<figcaption>شاهد ' + new Intl.NumberFormat("ar").format(i + 1) + '</figcaption>' +
           '</figure>'
         )
         .join("");
@@ -606,8 +605,9 @@
     await nextFrame();
 
     try {
-      const width = Math.ceil(els.achievementSheet.scrollWidth);
-      const height = Math.ceil(els.achievementSheet.scrollHeight);
+      const rect = els.achievementSheet.getBoundingClientRect();
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
 
       return await window.html2canvas(els.achievementSheet, {
         scale: 2.5,
@@ -632,6 +632,8 @@
           clonedSheet.style.width = "900px";
           clonedSheet.style.minHeight = "0";
           clonedSheet.style.height = "auto";
+          clonedSheet.style.overflow = "hidden";
+          clonedSheet.style.boxSizing = "border-box";
           clonedSheet.setAttribute("dir", "rtl");
 
           clonedSheet.querySelectorAll("h1,h2,h3,p,strong,span").forEach((node) => {
@@ -675,35 +677,20 @@
       const canvas = await getExportCanvas();
       const imageData = canvas.toDataURL("image/png", 1);
       const { jsPDF } = window.jspdf;
+      const ratio = canvas.width / canvas.height;
+      const pageWidth = 210;
+      const pageHeight = pageWidth / ratio;
+
       const pdf = new jsPDF({
-        orientation: "portrait",
+        orientation: pageHeight > pageWidth ? "portrait" : "landscape",
         unit: "mm",
-        format: "a4",
+        format: [pageWidth, pageHeight],
         compress: true
       });
 
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 8;
-      const availableWidth = pageWidth - (margin * 2);
-      const availableHeight = pageHeight - (margin * 2);
-      const ratio = canvas.width / canvas.height;
-      const boxRatio = availableWidth / availableHeight;
-      let width = availableWidth;
-      let height = availableHeight;
-
-      if (ratio > boxRatio) {
-        height = availableWidth / ratio;
-      } else {
-        width = availableHeight * ratio;
-      }
-
-      const x = (pageWidth - width) / 2;
-      const y = (pageHeight - height) / 2;
-
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      pdf.addImage(imageData, "PNG", x, y, width, height, undefined, "FAST");
+      pdf.addImage(imageData, "PNG", 0, 0, pageWidth, pageHeight, undefined, "FAST");
       pdf.save(exportFileName() + ".pdf");
       toast("تم تجهيز ملف PDF");
     } catch (error) {
