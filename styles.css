@@ -1558,7 +1558,7 @@ button{cursor:pointer}
 }
 .achievement-sheet[class*="theme-"] .hero-pill{
   background:var(--theme-primary);
-  box-shadow:0 8px 18px color-mix(in srgb,var(--theme-primary) 22%,transparent);
+  box-shadow:0 8px 18px rgba(20,70,110,.16);
 }
 .achievement-sheet[class*="theme-"] .hero-line{
   background:linear-gradient(90deg,var(--theme-primary),var(--theme-secondary));
@@ -1567,7 +1567,7 @@ button{cursor:pointer}
   color:var(--theme-primary);
 }
 .achievement-sheet[class*="theme-"] .visual-orbit{
-  border-color:color-mix(in srgb,var(--theme-primary) 28%,transparent);
+  border-color:rgba(30,95,135,.24);
 }
 .achievement-sheet[class*="theme-"] .visual-badge{
   background:var(--theme-secondary);
