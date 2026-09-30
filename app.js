@@ -14,10 +14,16 @@
     editorPanel: $("editorPanel"),
     app: $("app"),
     newEventBtn: $("newEventBtn"),
-    printTopBtn: $("printTopBtn"),
-    printBtn: $("printBtn"),
-    publicPrintBtn: $("publicPrintBtn"),
+    exportPngTopBtn: $("exportPngTopBtn"),
+    exportPdfTopBtn: $("exportPdfTopBtn"),
+    exportPngBtn: $("exportPngBtn"),
+    exportPdfBtn: $("exportPdfBtn"),
+    publicPngBtn: $("publicPngBtn"),
+    publicPdfBtn: $("publicPdfBtn"),
     publicActions: $("publicActions"),
+    achievementSheet: $("achievementSheet"),
+    designTheme: $("designTheme"),
+    designOptions: $("designOptions"),
     shareBtn: $("shareBtn"),
     publishBtn: $("publishBtn"),
     saveState: $("saveState"),
@@ -58,7 +64,7 @@
   const fields = [
     "eventName", "organizationName", "eventDate", "eventLocation",
     "participantCount", "eventField", "targetAudience", "eventGoal",
-    "summary", "designer", "followUp"
+    "summary", "designer", "followUp", "designTheme"
   ];
 
   const toast = (message, type = "ok") => {
@@ -138,8 +144,31 @@
     }
   };
 
+  const DESIGN_THEMES = ["blue", "gold", "green", "burgundy"];
+
+  const applyDesignTheme = (theme) => {
+    const selected = DESIGN_THEMES.includes(theme) ? theme : "blue";
+    if (els.designTheme) els.designTheme.value = selected;
+
+    if (els.achievementSheet) {
+      DESIGN_THEMES.forEach((name) => els.achievementSheet.classList.remove("theme-" + name));
+      els.achievementSheet.classList.add("theme-" + selected);
+    }
+
+    if (els.designOptions) {
+      els.designOptions.querySelectorAll(".design-option").forEach((button) => {
+        const active = button.dataset.theme === selected;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    return selected;
+  };
+
   const renderSheet = () => {
     const data = getFormData();
+    applyDesignTheme(data.designTheme || "blue");
 
     els.sheetOrganization.textContent = data.organizationName || "اسم المؤسسة / المدرسة";
     els.sheetEventName.textContent = data.eventName || "اسم الفعالية";
@@ -319,6 +348,7 @@
     summary: raw.summary ?? "",
     designer: raw.designer ?? "",
     followUp: raw.followUp ?? raw.follow_up ?? "",
+    designTheme: raw.designTheme ?? raw.design_theme ?? "blue",
     eventDirector: raw.eventDirector ?? raw.event_director ?? "",
     assistants: raw.assistants ?? "",
     schoolPrincipal: raw.schoolPrincipal ?? raw.school_principal ?? "",
@@ -462,9 +492,107 @@
     await copyLink();
   };
 
+  const waitForSheetAssets = async () => {
+    if (document.fonts?.ready) {
+      try { await document.fonts.ready; } catch {}
+    }
+
+    const images = Array.from(els.achievementSheet?.querySelectorAll("img") || []);
+    await Promise.all(images.map((img) => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    }));
+  };
+
+  const getExportCanvas = async () => {
+    if (!window.html2canvas) throw new Error("أداة تصدير الصورة لم يتم تحميلها");
+    await waitForSheetAssets();
+
+    return window.html2canvas(els.achievementSheet, {
+      scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false,
+      imageTimeout: 15000,
+      scrollX: 0,
+      scrollY: 0
+    });
+  };
+
+  const exportFileName = () => {
+    const base = clean($("eventName")?.value || "فعالية")
+      .replace(/[\\/:*?"<>|]+/g, "-")
+      .replace(/\s+/g, " ")
+      .slice(0, 80);
+    return "ورقة إنجاز - " + (base || "فعالية");
+  };
+
+  const exportPng = async () => {
+    try {
+      toast("جارٍ تجهيز صورة PNG...");
+      const canvas = await getExportCanvas();
+      const link = document.createElement("a");
+      link.download = exportFileName() + ".png";
+      link.href = canvas.toDataURL("image/png", 1);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast("تم تجهيز صورة PNG");
+    } catch (error) {
+      toast("تعذر تصدير PNG: " + (error?.message || "خطأ غير معروف"), "error");
+    }
+  };
+
+  const exportPdf = async () => {
+    try {
+      if (!window.jspdf?.jsPDF) throw new Error("أداة PDF لم يتم تحميلها");
+      toast("جارٍ تجهيز ملف PDF...");
+      const canvas = await getExportCanvas();
+      const imageData = canvas.toDataURL("image/png", 1);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const ratio = canvas.width / canvas.height;
+      const pageRatio = pageWidth / pageHeight;
+      let width = pageWidth;
+      let height = pageHeight;
+      let x = 0;
+      let y = 0;
+
+      if (ratio > pageRatio) {
+        height = pageWidth / ratio;
+        y = (pageHeight - height) / 2;
+      } else {
+        width = pageHeight * ratio;
+        x = (pageWidth - width) / 2;
+      }
+
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, "F");
+      pdf.addImage(imageData, "PNG", x, y, width, height, undefined, "FAST");
+      pdf.save(exportFileName() + ".pdf");
+      toast("تم تجهيز ملف PDF");
+    } catch (error) {
+      toast("تعذر تصدير PDF: " + (error?.message || "خطأ غير معروف"), "error");
+    }
+  };
+
   const resetForm = () => {
     if (!window.confirm("إنشاء فعالية جديدة؟ سيتم مسح البيانات الحالية من النموذج فقط.")) return;
     els.form.reset();
+    if (els.designTheme) els.designTheme.value = "blue";
+    applyDesignTheme("blue");
     state = { id: null, slug: null, logoDataUrl: "", evidence: [], publishedUrl: "" };
     els.sharePanel.classList.add("hidden");
     els.shareBtn.classList.add("hidden");
@@ -475,6 +603,14 @@
     renderSheet();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  els.designOptions?.addEventListener("click", (event) => {
+    const button = event.target.closest(".design-option");
+    if (!button) return;
+    applyDesignTheme(button.dataset.theme || "blue");
+    els.saveState.textContent = state.id ? "تعديلات غير محفوظة" : "مسودة";
+    renderSheet();
+  });
 
   els.form.addEventListener("input", () => {
     els.saveState.textContent = state.id ? "تعديلات غير محفوظة" : "مسودة";
@@ -536,9 +672,12 @@
   });
 
   els.newEventBtn.addEventListener("click", resetForm);
-  els.printTopBtn.addEventListener("click", () => window.print());
-  els.printBtn.addEventListener("click", () => window.print());
-  els.publicPrintBtn.addEventListener("click", () => window.print());
+  els.exportPngTopBtn.addEventListener("click", exportPng);
+  els.exportPdfTopBtn.addEventListener("click", exportPdf);
+  els.exportPngBtn.addEventListener("click", exportPng);
+  els.exportPdfBtn.addEventListener("click", exportPdf);
+  els.publicPngBtn.addEventListener("click", exportPng);
+  els.publicPdfBtn.addEventListener("click", exportPdf);
   els.copyLinkBtn.addEventListener("click", copyLink);
   els.shareBtn.addEventListener("click", shareLink);
 
