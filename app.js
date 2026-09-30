@@ -50,8 +50,9 @@
     sheetGoal: $("sheetGoal"),
     sheetSummary: $("sheetSummary"),
     sheetEvidence: $("sheetEvidence"),
-    sheetDesigner: $("sheetDesigner"),
-    sheetFollowUp: $("sheetFollowUp")
+    sheetAssistants: $("sheetAssistants"),
+    sheetPrincipal: $("sheetPrincipal"),
+    heroEvidenceFrame: $("heroEvidenceFrame")
   };
 
   let state = {
@@ -65,7 +66,7 @@
   const fields = [
     "eventName", "organizationName", "eventDate", "eventLocation",
     "participantCount", "eventField", "targetAudience", "eventGoal",
-    "summary", "designer", "followUp", "designTheme"
+    "summary", "assistants", "schoolPrincipal", "designTheme"
   ];
 
   const toast = (message, type = "ok") => {
@@ -183,13 +184,23 @@
         : new Intl.NumberFormat("ar").format(data.participantCount);
     els.sheetGoal.textContent = data.eventGoal || "يظهر هنا هدف الفعالية بعد إدخاله في النموذج.";
     els.sheetSummary.textContent = data.summary || "يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.";
-    els.sheetDesigner.textContent = data.designer || "—";
-    els.sheetFollowUp.textContent = data.followUp || "—";
+    els.sheetAssistants.textContent = data.assistants || "—";
+    els.sheetPrincipal.textContent = data.schoolPrincipal || "—";
 
     if (state.logoDataUrl) {
       els.sheetLogo.innerHTML = '<img alt="شعار المؤسسة" src="' + state.logoDataUrl + '">';
     } else {
       els.sheetLogo.innerHTML = "<span>الشعار</span>";
+    }
+
+    if (state.evidence.length) {
+      els.heroEvidenceFrame.innerHTML =
+        '<img class="hero-evidence-image" alt="صورة مختارة من شواهد الفعالية" src="' +
+        state.evidence[0] +
+        '">';
+    } else {
+      els.heroEvidenceFrame.innerHTML =
+        '<div class="hero-evidence-placeholder"><span>صورة من الشواهد</span></div>';
     }
 
     const count = state.evidence.length;
