@@ -154,22 +154,9 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
-  uid uuid;
   saved smart_newsletters%ROWTYPE;
   v_slug text;
 BEGIN
-  SELECT s.user_id INTO uid
-  FROM smart_edu_sessions s
-  JOIN smart_edu_users u ON u.id=s.user_id
-  WHERE s.token_hash=encode(digest(coalesce(p_token,''),'sha256'),'hex')
-    AND s.expires_at > now()
-    AND u.is_active=true
-  LIMIT 1;
-
-  IF uid IS NULL THEN
-    RAISE EXCEPTION 'auth_required' USING ERRCODE='28000';
-  END IF;
-
   IF nullif(trim(p_newsletter->>'title'),'') IS NULL THEN
     RAISE EXCEPTION 'title_required' USING ERRCODE='22023';
   END IF;
@@ -188,7 +175,7 @@ BEGIN
     left(coalesce(p_newsletter->>'preparedBy',''),120),
     nullif(p_newsletter->>'newsletterDate','')::date,
     coalesce(p_newsletter->>'imageDataUrl',''),
-    uid
+    NULL
   )
   ON CONFLICT(slug) DO UPDATE SET
     title=EXCLUDED.title,
