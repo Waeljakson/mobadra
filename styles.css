@@ -2363,3 +2363,16 @@ button{cursor:pointer}
     font-size:4.4pt;
   }
 }
+
+
+/* Exact export crop: decorative overflow must never enlarge the canvas */
+.achievement-sheet.export-capture{
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+.achievement-sheet.export-capture .evidence-frame{
+  padding-bottom:10px;
+}
+.achievement-sheet.export-capture .evidence-frame figcaption{
+  display:none !important;
+}
