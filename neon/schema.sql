@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS mobadra_events (
   event_director text,
   assistants text,
   school_principal text,
+  design_theme text NOT NULL DEFAULT 'blue',
   is_published boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
@@ -65,3 +66,13 @@ CREATE TABLE IF NOT EXISTS mobadra_settings (
   setting_value text NOT NULL,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE mobadra_events
+  ADD COLUMN IF NOT EXISTS design_theme text NOT NULL DEFAULT 'blue';
+
+ALTER TABLE mobadra_events
+  DROP CONSTRAINT IF EXISTS mobadra_events_design_theme_check;
+
+ALTER TABLE mobadra_events
+  ADD CONSTRAINT mobadra_events_design_theme_check
+  CHECK (design_theme IN ('blue','gold','green','burgundy'));
