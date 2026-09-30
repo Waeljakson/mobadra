@@ -574,20 +574,63 @@
     }));
   };
 
+  const nextFrame = () =>
+    new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
   const getExportCanvas = async () => {
     if (!window.html2canvas) throw new Error("أداة تصدير الصورة لم يتم تحميلها");
     await waitForSheetAssets();
 
-    return window.html2canvas(els.achievementSheet, {
-      scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
-      imageTimeout: 15000,
-      scrollX: 0,
-      scrollY: 0
-    });
+    try {
+      if (document.fonts?.load) {
+        await Promise.all([
+          document.fonts.load('400 16px "Cairo"'),
+          document.fonts.load('700 16px "Cairo"'),
+          document.fonts.load('900 34px "Cairo"')
+        ]);
+      }
+    } catch {}
+
+    els.achievementSheet.classList.add("export-capture");
+    await nextFrame();
+
+    try {
+      const width = Math.ceil(els.achievementSheet.scrollWidth);
+      const height = Math.ceil(els.achievementSheet.scrollHeight);
+
+      return await window.html2canvas(els.achievementSheet, {
+        scale: 2.5,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        imageTimeout: 15000,
+        scrollX: 0,
+        scrollY: 0,
+        width,
+        height,
+        windowWidth: Math.max(1200, width + 100),
+        windowHeight: Math.max(900, height + 100),
+        onclone: (clonedDocument) => {
+          const clonedSheet = clonedDocument.getElementById("achievementSheet");
+          if (!clonedSheet) return;
+
+          clonedSheet.classList.add("export-capture");
+          clonedSheet.style.transform = "none";
+          clonedSheet.style.transformOrigin = "top right";
+          clonedSheet.style.width = "900px";
+          clonedSheet.style.minHeight = "0";
+          clonedSheet.style.height = "auto";
+          clonedSheet.setAttribute("dir", "rtl");
+
+          clonedSheet.querySelectorAll("h1,h2,h3,p,strong,span").forEach((node) => {
+            node.style.letterSpacing = "0";
+          });
+        }
+      });
+    } finally {
+      els.achievementSheet.classList.remove("export-capture");
+    }
   };
 
   const exportFileName = () => {
@@ -630,20 +673,22 @@
 
       const pageWidth = 210;
       const pageHeight = 297;
+      const margin = 8;
+      const availableWidth = pageWidth - (margin * 2);
+      const availableHeight = pageHeight - (margin * 2);
       const ratio = canvas.width / canvas.height;
-      const pageRatio = pageWidth / pageHeight;
-      let width = pageWidth;
-      let height = pageHeight;
-      let x = 0;
-      let y = 0;
+      const boxRatio = availableWidth / availableHeight;
+      let width = availableWidth;
+      let height = availableHeight;
 
-      if (ratio > pageRatio) {
-        height = pageWidth / ratio;
-        y = (pageHeight - height) / 2;
+      if (ratio > boxRatio) {
+        height = availableWidth / ratio;
       } else {
-        width = pageHeight * ratio;
-        x = (pageWidth - width) / 2;
+        width = availableHeight * ratio;
       }
+
+      const x = (pageWidth - width) / 2;
+      const y = (pageHeight - height) / 2;
 
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, pageWidth, pageHeight, "F");
