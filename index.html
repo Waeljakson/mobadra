@@ -14,13 +14,61 @@
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <section id="authScreen" class="auth-screen no-print">
-    <div class="auth-card simple-entry-card">
-      <div class="auth-emblem">ذ</div>
-      <p class="auth-kicker">منصة مدرسية رقمية</p>
-      <h1>التحول الذكي في التعليم</h1>
-      <p class="auth-subtitle">منصة موحدة لتوثيق الفعاليات وإنشاء النشرات التعليمية بصورة احترافية.</p>
-      <button id="enterPlatformBtn" class="btn btn-primary simple-entry-btn" type="button">الدخول للمنصة</button>
+  <section id="authScreen" class="auth-screen initiative-entry no-print">
+    <div class="initiative-entry-shell">
+      <div class="initiative-entry-hero">
+        <div class="initiative-logo">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" fill="#fff" stroke="#dbe8ef" stroke-width="2"/>
+            <path d="M29 64c10-22 23-33 39-33 13 0 23 7 29 20-10-5-19-6-28-3-15 5-24 18-29 38-7-6-11-13-11-22Z" fill="#0b5f9b"/>
+            <path d="M45 72c8-13 17-20 28-20 8 0 15 4 21 12-8-2-15-1-21 2-9 5-16 13-20 25-4-5-7-11-8-19Z" fill="#fff"/>
+            <circle cx="79" cy="32" r="10" fill="#e2a52b"/>
+            <path d="M33 91h54" stroke="#0b4e8c" stroke-width="6" stroke-linecap="round"/>
+            <path d="M44 99h32" stroke="#d89a24" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="initiative-title-wrap">
+          <span class="initiative-chip">مبادرة مدرسية رقمية</span>
+          <h1>التحول الذكي في التعليم</h1>
+          <p>موجهة للطلاب والمعلمين</p>
+        </div>
+        <button id="enterPlatformBtn" class="btn btn-primary simple-entry-btn" type="button">الدخول للمنصة</button>
+      </div>
+
+      <section class="initiative-definition">
+        <h2>تعريف المبادرة</h2>
+        <p>مبادرة تعليمية تهدف إلى دعم التحول الذكي داخل المدرسة من خلال تمكين الطلاب والمعلمين من استخدام أدوات الذكاء الاصطناعي في التعليم والتعلم، بما يعزز الإبداع، ويطور المهارات، ويرفع جودة الممارسات التعليمية.</p>
+      </section>
+
+      <section class="initiative-objectives">
+        <h2>أهداف المبادرة</h2>
+        <div class="objective-grid">
+          <article class="objective-card">
+            <h3>أهداف خاصة بالمعلمين</h3>
+            <ul>
+              <li>تنمية مهارات المعلم في توظيف أدوات الذكاء الاصطناعي داخل التخطيط والتدريس.</li>
+              <li>إنتاج محتوى تعليمي ذكي يساعد على رفع مستوى الفهم والتفاعل.</li>
+              <li>تحسين نواتج التعلم من خلال استخدام أدوات تحليل البيانات الذكية.</li>
+            </ul>
+          </article>
+          <article class="objective-card">
+            <h3>أهداف خاصة بالطلاب</h3>
+            <ul>
+              <li>اكتساب مهارات المستقبل مثل الإبداع والتحليل وحل المشكلات باستخدام الذكاء الاصطناعي.</li>
+              <li>استخدام أدوات AI في صناعة المحتوى وتلخيص الدروس وإنشاء أعمال تعليمية مبتكرة.</li>
+              <li>تعزيز المشاركة الصفية عبر أنشطة رقمية تفاعلية.</li>
+            </ul>
+          </article>
+          <article class="objective-card">
+            <h3>أهداف مشتركة</h3>
+            <ul>
+              <li>بناء بيئة تعليمية حديثة تعتمد على التقنية والابتكار.</li>
+              <li>تعزيز ثقافة التحول الرقمي داخل المدرسة.</li>
+              <li>دعم إنتاج مشاريع تعليمية ذكية بين الطلاب والمعلمين.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
     </div>
   </section>
 
@@ -71,8 +119,43 @@
           </div>
           <span class="module-arrow">←</span>
         </button>
+
+        <button id="openEventsReport" class="module-card module-card-report-events" type="button">
+          <span class="module-icon">ت</span>
+          <div>
+            <strong>تقرير الفعاليات</strong>
+            <p>عرض الفعاليات المحفوظة مع التعديل والحذف النهائي.</p>
+          </div>
+          <span class="module-arrow">←</span>
+        </button>
+
+        <button id="openNewslettersReport" class="module-card module-card-report-newsletters" type="button">
+          <span class="module-icon">ر</span>
+          <div>
+            <strong>تقرير النشرات</strong>
+            <p>عرض النشرات المحفوظة مع التعديل والحذف النهائي.</p>
+          </div>
+          <span class="module-arrow">←</span>
+        </button>
       </div>
     </section>
+
+  <section id="reportsScreen" class="reports-screen hidden">
+    <div class="reports-head">
+      <div>
+        <p class="eyebrow">إدارة السجلات</p>
+        <h1 id="reportsTitle">التقرير</h1>
+        <p id="reportsSubtitle">عرض السجلات المحفوظة وإدارتها.</p>
+      </div>
+      <div class="reports-head-actions">
+        <span id="reportsCount" class="report-count">0 سجل</span>
+        <button id="refreshReportsBtn" class="btn btn-ghost" type="button">تحديث</button>
+      </div>
+    </div>
+    <div id="reportsLoading" class="reports-loading hidden">جارٍ تحميل التقرير...</div>
+    <div id="reportsEmpty" class="reports-empty hidden">لا توجد سجلات محفوظة حتى الآن.</div>
+    <div id="reportsList" class="reports-list"></div>
+  </section>
 
   <main id="app" class="app-shell hidden">
     <section id="editorPanel" class="editor no-print">
