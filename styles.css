@@ -1779,7 +1779,7 @@ button{cursor:pointer}
   width:74px;
   color:#dfa019;
   transform:rotate(-3deg);
-  filter:drop-shadow(0 5px 6px rgba(146,97,0,.16));
+  filter:none;
 }
 .royal-crown svg{width:100%;height:auto;display:block}
 
@@ -1876,7 +1876,7 @@ button{cursor:pointer}
 .achievement-sheet.theme-blue .visual-card svg{
   width:91px;
   height:91px;
-  filter:drop-shadow(0 5px 5px rgba(93,55,0,.15));
+  filter:none;
 }
 .achievement-sheet.theme-blue .visual-orbit{
   border-color:rgba(10,82,143,.20);
