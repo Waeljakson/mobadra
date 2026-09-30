@@ -24,7 +24,8 @@
     </div>
     <div class="top-actions">
       <button id="newEventBtn" class="btn btn-ghost" type="button">فعالية جديدة</button>
-      <button id="printTopBtn" class="btn btn-dark" type="button">طباعة / PDF</button>
+      <button id="exportPngTopBtn" class="btn btn-ghost" type="button">تنزيل PNG</button>
+      <button id="exportPdfTopBtn" class="btn btn-dark" type="button">تنزيل PDF</button>
     </div>
   </header>
 
@@ -99,6 +100,38 @@
           <textarea id="summary" name="summary" rows="4" maxlength="1100" placeholder="ملخص تنفيذي لما تم في الفعالية وأبرز مخرجاتها..."></textarea>
         </div>
 
+        <div class="design-picker span-2">
+          <div class="design-picker-head">
+            <div>
+              <strong>اختر شكل ورقة الإنجاز</strong>
+              <small>يمكن تغيير التصميم في أي وقت قبل أو بعد النشر</small>
+            </div>
+          </div>
+          <input id="designTheme" name="designTheme" type="hidden" value="blue" />
+          <div id="designOptions" class="design-options">
+            <button class="design-option active" type="button" data-theme="blue" aria-pressed="true">
+              <span class="design-thumb design-thumb-blue"><i></i><b></b><em></em></span>
+              <strong>أزرق عصري</strong>
+              <small>حديث ومدرسي</small>
+            </button>
+            <button class="design-option" type="button" data-theme="gold" aria-pressed="false">
+              <span class="design-thumb design-thumb-gold"><i></i><b></b><em></em></span>
+              <strong>ذهبي فاخر</strong>
+              <small>رسمي وأنيق</small>
+            </button>
+            <button class="design-option" type="button" data-theme="green" aria-pressed="false">
+              <span class="design-thumb design-thumb-green"><i></i><b></b><em></em></span>
+              <strong>أخضر حيوي</strong>
+              <small>مبادرات وأنشطة</small>
+            </button>
+            <button class="design-option" type="button" data-theme="burgundy" aria-pressed="false">
+              <span class="design-thumb design-thumb-burgundy"><i></i><b></b><em></em></span>
+              <strong>عنابي كلاسيكي</strong>
+              <small>تكريم ومناسبات</small>
+            </button>
+          </div>
+        </div>
+
         <div class="upload-card span-2">
           <div class="upload-head">
             <div>
@@ -163,7 +196,8 @@
         <span>معاينة ورقة الإنجاز</span>
         <div>
           <button id="shareBtn" class="mini-btn hidden" type="button">مشاركة الرابط</button>
-          <button id="printBtn" class="mini-btn" type="button">طباعة / حفظ PDF</button>
+          <button id="exportPngBtn" class="mini-btn" type="button">PNG</button>
+          <button id="exportPdfBtn" class="mini-btn mini-btn-primary" type="button">PDF</button>
         </div>
       </div>
 
@@ -310,7 +344,8 @@
       </article>
 
       <div id="publicActions" class="public-actions no-print hidden">
-        <button id="publicPrintBtn" class="btn btn-primary" type="button">طباعة / حفظ PDF</button>
+        <button id="publicPngBtn" class="btn btn-ghost" type="button">تنزيل PNG</button>
+        <button id="publicPdfBtn" class="btn btn-primary" type="button">تنزيل PDF</button>
       </div>
     </section>
   </main>
@@ -321,6 +356,8 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07Zo+B1L5H+nRZMLRFP0dLUfrzVJgNnG0QSBAYRBZqaM/dQkSG0J/MwVI7kYEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="./config.js"></script>
   <script src="./app.js"></script>
 </body>
