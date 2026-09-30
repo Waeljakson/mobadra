@@ -1,12 +1,4 @@
 -- Run after Neon Auth + Data API are provisioned.
--- Configure the admin key separately; do not commit the plaintext key.
---
--- Example:
--- INSERT INTO mobadra_settings(setting_key, setting_value)
--- VALUES ('admin_key_sha256', encode(digest('YOUR_ADMIN_KEY','sha256'),'hex'))
--- ON CONFLICT (setting_key) DO UPDATE
--- SET setting_value = EXCLUDED.setting_value, updated_at = now();
-
 ALTER TABLE mobadra_events ENABLE ROW LEVEL SECURITY;
 
 GRANT USAGE ON SCHEMA public TO anonymous;
@@ -38,23 +30,13 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
-  expected_hash text;
-  supplied_hash text;
   saved mobadra_events%ROWTYPE;
   v_slug text;
   v_participant_count integer;
   v_design_theme text;
 BEGIN
-  SELECT setting_value
-    INTO expected_hash
-    FROM mobadra_settings
-   WHERE setting_key = 'admin_key_sha256';
-
-  supplied_hash := encode(digest(coalesce(p_admin_key,''), 'sha256'), 'hex');
-
-  IF expected_hash IS NULL OR supplied_hash <> expected_hash THEN
-    RAISE EXCEPTION 'invalid_admin_key' USING ERRCODE = '28000';
-  END IF;
+  -- p_admin_key is kept only for backwards compatibility with older clients.
+  -- Publishing no longer requires an administration code.
 
   v_slug := nullif(trim(p_event->>'slug'), '');
   IF v_slug IS NULL OR v_slug !~ '^event-[a-zA-Z0-9-]{8,80}$' THEN
