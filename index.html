@@ -14,22 +14,104 @@
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <header class="topbar no-print">
-    <div class="brand">
-      <div class="brand-mark">إ</div>
-      <div>
-        <strong>منصة إنجاز الفعاليات</strong>
-        <span>توثيق • تصميم • مشاركة</span>
-      </div>
-    </div>
-    <div class="top-actions">
-      <button id="newEventBtn" class="btn btn-ghost" type="button">فعالية جديدة</button>
-      <button id="exportPngTopBtn" class="btn btn-ghost" type="button">تنزيل PNG</button>
-      <button id="exportPdfTopBtn" class="btn btn-dark" type="button">تنزيل PDF</button>
-    </div>
-  </header>
+  <section id="authScreen" class="auth-screen no-print">
+    <div class="auth-card">
+      <div class="auth-emblem">ذ</div>
+      <p class="auth-kicker">منصة مدرسية رقمية</p>
+      <h1>مبادرة التحول الذكي في التعليم</h1>
+      <p class="auth-subtitle">منصة موحدة لإنشاء وتوثيق الفعاليات والنشرات التعليمية.</p>
 
-  <main id="app" class="app-shell">
+      <div id="setupPanel" class="hidden">
+        <div class="auth-mode-note">
+          <strong>إعداد أول مستخدم</strong>
+          <span>أنشئ حساب الإدارة الأول للمنصة.</span>
+        </div>
+        <form id="setupForm" class="auth-form" autocomplete="off">
+          <label>
+            <span>الاسم</span>
+            <input id="setupDisplayName" required maxlength="120" placeholder="مثال: محمد أحمد" />
+          </label>
+          <label>
+            <span>اسم المستخدم</span>
+            <input id="setupUsername" required minlength="3" maxlength="60" autocomplete="username" placeholder="admin" />
+          </label>
+          <label>
+            <span>كلمة المرور</span>
+            <input id="setupPassword" required minlength="6" type="password" autocomplete="new-password" placeholder="6 أحرف على الأقل" />
+          </label>
+          <button class="btn btn-primary auth-submit" type="submit">إنشاء الحساب وبدء الاستخدام</button>
+        </form>
+      </div>
+
+      <form id="loginForm" class="auth-form hidden" autocomplete="on">
+        <label>
+          <span>اسم المستخدم</span>
+          <input id="loginUsername" required autocomplete="username" placeholder="اسم المستخدم" />
+        </label>
+        <label>
+          <span>كلمة المرور</span>
+          <input id="loginPassword" required type="password" autocomplete="current-password" placeholder="كلمة المرور" />
+        </label>
+        <button class="btn btn-primary auth-submit" type="submit">دخول المنصة</button>
+      </form>
+
+      <div id="authMessage" class="auth-message"></div>
+    </div>
+  </section>
+
+  <div id="platformShell" class="hidden">
+    <header class="topbar no-print">
+      <div class="brand">
+        <div class="brand-mark">ذ</div>
+        <div>
+          <strong>مبادرة التحول الذكي في التعليم</strong>
+          <span>فعاليات • نشرات • توثيق رقمي</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="currentUserBadge" class="user-badge hidden"></span>
+        <button id="homeBtn" class="btn btn-ghost hidden" type="button">الرئيسية</button>
+        <button id="newEventBtn" class="btn btn-ghost hidden" type="button">فعالية جديدة</button>
+        <button id="exportPngTopBtn" class="btn btn-ghost hidden" type="button">PNG</button>
+        <button id="exportPdfTopBtn" class="btn btn-dark hidden" type="button">PDF</button>
+        <button id="newsletterPngTopBtn" class="btn btn-ghost hidden" type="button">PNG</button>
+        <button id="newsletterPdfTopBtn" class="btn btn-dark hidden" type="button">PDF</button>
+        <button id="logoutBtn" class="btn btn-ghost hidden" type="button">خروج</button>
+      </div>
+    </header>
+
+    <section id="dashboardScreen" class="dashboard-screen hidden">
+      <div class="dashboard-hero">
+        <div>
+          <p class="eyebrow">لوحة المبادرة</p>
+          <h1>مبادرة التحول الذكي في التعليم</h1>
+          <p>اختر الأداة التي تريد العمل عليها.</p>
+        </div>
+        <div class="dashboard-orb">ذ</div>
+      </div>
+
+      <div class="module-grid">
+        <button id="openEventsModule" class="module-card module-card-events" type="button">
+          <span class="module-icon">✓</span>
+          <div>
+            <strong>إنجاز الفعاليات</strong>
+            <p>إنشاء ورقة إنجاز، إضافة الشواهد، النشر وQR والتصدير.</p>
+          </div>
+          <span class="module-arrow">←</span>
+        </button>
+
+        <button id="openNewslettersModule" class="module-card module-card-newsletters" type="button">
+          <span class="module-icon">ن</span>
+          <div>
+            <strong>النشرات</strong>
+            <p>تصميم نشرة بصورة وعنوان واسم المُعدّ والتاريخ مع تصدير PNG وPDF.</p>
+          </div>
+          <span class="module-arrow">←</span>
+        </button>
+      </div>
+    </section>
+
+  <main id="app" class="app-shell hidden">
     <section id="editorPanel" class="editor no-print">
       <div class="panel-heading">
         <div>
@@ -359,9 +441,108 @@
     </section>
   </main>
 
+  <main id="newsletterApp" class="newsletter-shell hidden">
+    <section class="editor no-print">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">منصة النشرات</p>
+          <h1>أنشئ نشرة احترافية</h1>
+          <p>أضف صورة النشرة وبياناتها، وشاهد التصميم النهائي مباشرة.</p>
+        </div>
+        <span id="newsletterSaveState" class="status-badge">مسودة</span>
+      </div>
+
+      <form id="newsletterForm" class="form-grid" autocomplete="off">
+        <div class="field span-2">
+          <label for="newsletterTitle">عنوان النشرة *</label>
+          <input id="newsletterTitle" required maxlength="160" placeholder="مثال: نشرة اليوم الوطني" />
+        </div>
+
+        <div class="field">
+          <label for="newsletterPreparedBy">مُعدّ النشرة</label>
+          <input id="newsletterPreparedBy" maxlength="120" placeholder="الاسم" />
+        </div>
+
+        <div class="field">
+          <label for="newsletterDate">تاريخ النشرة</label>
+          <input id="newsletterDate" type="date" />
+        </div>
+
+        <div class="upload-card span-2">
+          <div class="upload-head">
+            <div>
+              <strong>صورة النشرة</strong>
+              <small>PNG أو JPG — ستظهر كاملة داخل التصميم</small>
+            </div>
+            <label class="upload-btn" for="newsletterImageInput">اختيار صورة</label>
+            <input id="newsletterImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+          </div>
+          <div id="newsletterImagePreview" class="newsletter-upload-preview empty">لم يتم رفع صورة</div>
+        </div>
+
+        <div class="publish-box span-2">
+          <div>
+            <strong>حفظ النشرة</strong>
+            <p>يتم حفظ النشرة داخل حساب المستخدم الحالي.</p>
+          </div>
+          <button id="saveNewsletterBtn" class="btn btn-primary" type="submit">حفظ النشرة</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="preview-wrap newsletter-preview-wrap">
+      <div class="preview-toolbar no-print">
+        <span>معاينة النشرة</span>
+        <div>
+          <button id="newsletterPngBtn" class="mini-btn" type="button">PNG</button>
+          <button id="newsletterPdfBtn" class="mini-btn mini-btn-primary" type="button">PDF</button>
+        </div>
+      </div>
+
+      <article id="newsletterSheet" class="newsletter-sheet">
+        <div class="newsletter-decoration newsletter-decoration-a"></div>
+        <div class="newsletter-decoration newsletter-decoration-b"></div>
+
+        <header class="newsletter-head">
+          <div class="newsletter-brand-mark">ذ</div>
+          <div>
+            <span>مبادرة التحول الذكي في التعليم</span>
+            <strong>النشرات</strong>
+          </div>
+        </header>
+
+        <section class="newsletter-image-stage">
+          <div id="newsletterSheetImage" class="newsletter-sheet-image empty">
+            <span>صورة النشرة</span>
+          </div>
+        </section>
+
+        <section class="newsletter-copy">
+          <span class="newsletter-label">نشرة تعليمية</span>
+          <h1 id="newsletterSheetTitle">عنوان النشرة</h1>
+          <div class="newsletter-gold-line"></div>
+        </section>
+
+        <footer class="newsletter-footer">
+          <div>
+            <span>مُعدّ النشرة</span>
+            <strong id="newsletterSheetPreparedBy">—</strong>
+          </div>
+          <div>
+            <span>تاريخ النشرة</span>
+            <strong id="newsletterSheetDate">—</strong>
+          </div>
+          <div class="newsletter-footer-brand">التحول الذكي • محتوى رقمي • أثر تعليمي</div>
+        </footer>
+      </article>
+    </section>
+  </main>
+
   <div id="backendNotice" class="backend-notice no-print hidden">
     <strong>الواجهة جاهزة، لكن النشر العام يحتاج ربط Neon.</strong>
     <span>يمكنك المعاينة والطباعة الآن. عند إضافة إعدادات الـ API سيعمل الحفظ والـ QR العام تلقائيًا.</span>
+  </div>
+
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07Zo+B1L5H+nRZMLRFP0dLUfrzVJgNnG0QSBAYRBZqaM/dQkSG0J/MwVI7kYEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
