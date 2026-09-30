@@ -44,10 +44,7 @@
     sheetSummary: $("sheetSummary"),
     sheetEvidence: $("sheetEvidence"),
     sheetDesigner: $("sheetDesigner"),
-    sheetFollowUp: $("sheetFollowUp"),
-    sheetDirector: $("sheetDirector"),
-    sheetAssistants: $("sheetAssistants"),
-    sheetPrincipal: $("sheetPrincipal")
+    sheetFollowUp: $("sheetFollowUp")
   };
 
   let state = {
@@ -61,8 +58,7 @@
   const fields = [
     "eventName", "organizationName", "eventDate", "eventLocation",
     "participantCount", "eventField", "targetAudience", "eventGoal",
-    "summary", "designer", "followUp", "eventDirector",
-    "assistants", "schoolPrincipal"
+    "summary", "designer", "followUp"
   ];
 
   const toast = (message, type = "ok") => {
@@ -159,9 +155,6 @@
     els.sheetSummary.textContent = data.summary || "يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.";
     els.sheetDesigner.textContent = data.designer || "—";
     els.sheetFollowUp.textContent = data.followUp || "—";
-    els.sheetDirector.textContent = data.eventDirector || "—";
-    els.sheetAssistants.textContent = data.assistants || "—";
-    els.sheetPrincipal.textContent = data.schoolPrincipal || "—";
 
     if (state.logoDataUrl) {
       els.sheetLogo.innerHTML = '<img alt="شعار المؤسسة" src="' + state.logoDataUrl + '">';
