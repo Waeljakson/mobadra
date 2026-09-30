@@ -19,6 +19,16 @@
     dashboardScreen: $("dashboardScreen"),
     openEventsModule: $("openEventsModule"),
     openNewslettersModule: $("openNewslettersModule"),
+    openEventsReport: $("openEventsReport"),
+    openNewslettersReport: $("openNewslettersReport"),
+    reportsScreen: $("reportsScreen"),
+    reportsTitle: $("reportsTitle"),
+    reportsSubtitle: $("reportsSubtitle"),
+    reportsCount: $("reportsCount"),
+    refreshReportsBtn: $("refreshReportsBtn"),
+    reportsLoading: $("reportsLoading"),
+    reportsEmpty: $("reportsEmpty"),
+    reportsList: $("reportsList"),
     homeBtn: $("homeBtn"),
 
     app: $("app"),
@@ -100,6 +110,7 @@
 
   let anonymousJwt = "";
   let anonymousJwtAt = 0;
+  let reportType = "events";
 
   const eventFields = [
     "eventName",
@@ -378,6 +389,7 @@
     setHidden(els.dashboardScreen, false);
     setHidden(els.app, true);
     setHidden(els.newsletterApp, true);
+    setHidden(els.reportsScreen, true);
     setHidden(els.homeBtn, true);
     setHidden(els.newEventBtn, true);
     setHidden(els.exportPngTopBtn, true);
@@ -390,6 +402,7 @@
   const showEventsModule = () => {
     setHidden(els.dashboardScreen, true);
     setHidden(els.newsletterApp, true);
+    setHidden(els.reportsScreen, true);
     setHidden(els.app, false);
     setHidden(els.homeBtn, false);
     setHidden(els.newEventBtn, false);
@@ -408,6 +421,7 @@
   const showNewslettersModule = () => {
     setHidden(els.dashboardScreen, true);
     setHidden(els.app, true);
+    setHidden(els.reportsScreen, true);
     setHidden(els.newsletterApp, false);
     setHidden(els.homeBtn, false);
     setHidden(els.newEventBtn, true);
@@ -630,6 +644,7 @@
     setHidden(els.platformShell,false);
     setHidden(els.dashboardScreen,true);
     setHidden(els.newsletterApp,true);
+    setHidden(els.reportsScreen,true);
     setHidden(els.app,false);
     setHidden(els.homeBtn,true);
     setHidden(els.newEventBtn,true);
@@ -737,6 +752,182 @@
     await copyLink();
   };
 
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const reportPreview = (row, type) => {
+    if (type === "events") {
+      const images = Array.isArray(row.evidence_images) ? row.evidence_images : [];
+      return images[0] || row.logo_data_url || "";
+    }
+    return row.image_data_url || "";
+  };
+
+  const showReports = async (type) => {
+    reportType = type;
+    setHidden(els.dashboardScreen, true);
+    setHidden(els.app, true);
+    setHidden(els.newsletterApp, true);
+    setHidden(els.reportsScreen, false);
+    setHidden(els.homeBtn, false);
+    setHidden(els.newEventBtn, true);
+    setHidden(els.exportPngTopBtn, true);
+    setHidden(els.exportPdfTopBtn, true);
+    setHidden(els.newsletterPngTopBtn, true);
+    setHidden(els.newsletterPdfTopBtn, true);
+
+    if (els.reportsTitle) {
+      els.reportsTitle.textContent =
+        type === "events" ? "تقرير الفعاليات" : "تقرير النشرات";
+    }
+    if (els.reportsSubtitle) {
+      els.reportsSubtitle.textContent =
+        type === "events"
+          ? "عرض الفعاليات المحفوظة مع التعديل والحذف النهائي."
+          : "عرض النشرات المحفوظة مع التعديل والحذف النهائي.";
+    }
+
+    await loadReports();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const loadReports = async () => {
+    if (!els.reportsList) return;
+
+    setHidden(els.reportsLoading, false);
+    setHidden(els.reportsEmpty, true);
+    els.reportsList.innerHTML = "";
+
+    try {
+      let rows;
+
+      if (reportType === "events") {
+        rows = await dataApiFetch(
+          "/mobadra_events?select=id,slug,event_name,organization_name,event_date,event_field,participant_count,created_at,evidence_images,logo_data_url&is_published=eq.true&order=created_at.desc",
+          { method: "GET" }
+        );
+      } else {
+        rows = await dataApiFetch(
+          "/smart_newsletters?select=id,slug,title,prepared_by,newsletter_date,image_data_url,created_at&order=created_at.desc",
+          { method: "GET" }
+        );
+      }
+
+      rows = Array.isArray(rows) ? rows : [];
+      if (els.reportsCount) {
+        els.reportsCount.textContent =
+          new Intl.NumberFormat("ar").format(rows.length) + " سجل";
+      }
+
+      setHidden(els.reportsEmpty, rows.length !== 0);
+
+      els.reportsList.innerHTML = rows.map((row) => {
+        const isEvent = reportType === "events";
+        const title = isEvent ? (row.event_name || "فعالية") : (row.title || "نشرة");
+        const secondary = isEvent
+          ? (row.organization_name || row.event_field || "")
+          : (row.prepared_by || "");
+        const date = isEvent ? row.event_date : row.newsletter_date;
+        const image = reportPreview(row, reportType);
+
+        return (
+          '<article class="report-card">' +
+            '<div class="report-thumb">' +
+              (image
+                ? '<img src="' + image + '" alt="">'
+                : '<span>بدون صورة</span>') +
+            '</div>' +
+            '<div class="report-main">' +
+              '<h3>' + escapeHtml(title) + '</h3>' +
+              '<div class="report-meta">' +
+                '<span>' + escapeHtml(formatArabicDate(date)) + '</span>' +
+                (secondary ? '<span>' + escapeHtml(secondary) + '</span>' : '') +
+              '</div>' +
+              '<div class="report-actions">' +
+                '<button class="report-action report-edit" type="button" data-report-edit="' +
+                  (isEvent ? "event" : "newsletter") + '" data-id="' + row.id + '">تعديل</button>' +
+                '<button class="report-action report-remove" type="button" data-report-delete="' +
+                  (isEvent ? "event" : "newsletter") + '" data-id="' + row.id +
+                  '" data-title="' + escapeHtml(title) + '">حذف</button>' +
+              '</div>' +
+            '</div>' +
+          '</article>'
+        );
+      }).join("");
+    } catch (error) {
+      toast("تعذر تحميل التقرير: " + (error?.message || "خطأ غير معروف"), "error");
+    } finally {
+      setHidden(els.reportsLoading, true);
+    }
+  };
+
+  const editReportRecord = async (type, id) => {
+    try {
+      if (type === "event") {
+        const payload = await dataApiFetch(
+          "/mobadra_events?id=eq." + encodeURIComponent(id) + "&select=*&limit=1",
+          { method: "GET" }
+        );
+        const row = Array.isArray(payload) ? payload[0] : null;
+        if (!row) throw new Error("السجل غير موجود");
+
+        populateEventForm(normalizeRemoteEvent(row));
+        eventState.id = row.id;
+        eventState.slug = row.slug;
+        eventState.publishedUrl = makePublicUrl(row.slug);
+        showEventsModule();
+        els.publishBtn.textContent = "حفظ التعديلات";
+        els.saveState.textContent = "وضع التعديل";
+        toast("تم تحميل الفعالية للتعديل");
+      } else {
+        const payload = await dataApiFetch(
+          "/smart_newsletters?id=eq." + encodeURIComponent(id) + "&select=*&limit=1",
+          { method: "GET" }
+        );
+        const row = Array.isArray(payload) ? payload[0] : null;
+        if (!row) throw new Error("السجل غير موجود");
+
+        newsletterState.id = row.id;
+        newsletterState.slug = row.slug;
+        newsletterState.imageDataUrl = row.image_data_url || "";
+        els.newsletterTitle.value = row.title || "";
+        els.newsletterPreparedBy.value = row.prepared_by || "";
+        els.newsletterDate.value = row.newsletter_date || "";
+        renderNewsletter();
+        showNewslettersModule();
+        els.saveNewsletterBtn.textContent = "حفظ التعديلات";
+        els.newsletterSaveState.textContent = "وضع التعديل";
+        toast("تم تحميل النشرة للتعديل");
+      }
+    } catch (error) {
+      toast("تعذر فتح السجل: " + (error?.message || "خطأ غير معروف"), "error");
+    }
+  };
+
+  const deleteReportRecord = async (type, id, title) => {
+    const confirmed = window.confirm(
+      'هل أنت متأكد من حذف "' + (title || "هذا السجل") +
+      '" نهائيًا؟\nلا يمكن التراجع عن الحذف.'
+    );
+    if (!confirmed) return;
+
+    try {
+      await rpc(
+        type === "event" ? "smart_delete_event" : "smart_delete_newsletter",
+        { p_id: id }
+      );
+      toast("تم الحذف النهائي");
+      await loadReports();
+    } catch (error) {
+      toast("تعذر الحذف: " + (error?.message || "خطأ غير معروف"), "error");
+    }
+  };
+
   const getNewsletterData = () => ({
     id:newsletterState.id,
     slug:newsletterState.slug,
@@ -826,6 +1017,26 @@
   els.homeBtn?.addEventListener("click",showDashboard);
   els.openEventsModule?.addEventListener("click",showEventsModule);
   els.openNewslettersModule?.addEventListener("click",showNewslettersModule);
+  els.openEventsReport?.addEventListener("click",() => showReports("events"));
+  els.openNewslettersReport?.addEventListener("click",() => showReports("newsletters"));
+  els.refreshReportsBtn?.addEventListener("click",loadReports);
+  els.reportsList?.addEventListener("click",(event) => {
+    const editBtn = event.target.closest("[data-report-edit]");
+    const deleteBtn = event.target.closest("[data-report-delete]");
+
+    if (editBtn) {
+      editReportRecord(editBtn.dataset.reportEdit, editBtn.dataset.id);
+      return;
+    }
+
+    if (deleteBtn) {
+      deleteReportRecord(
+        deleteBtn.dataset.reportDelete,
+        deleteBtn.dataset.id,
+        deleteBtn.dataset.title || ""
+      );
+    }
+  });
 
   els.form?.addEventListener("input",() => {
     els.saveState.textContent=eventState.id ? "تعديلات غير محفوظة" : "مسودة";
