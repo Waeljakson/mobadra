@@ -1101,3 +1101,282 @@ button{cursor:pointer}
     height:23mm;
   }
 }
+
+
+/* =========================================================
+   COMPACT IMAGE-FIRST ACHIEVEMENT SHEET
+   ========================================================= */
+.achievement-sheet{
+  padding:32px 40px 24px;
+}
+.sheet-header{
+  min-height:84px;
+  margin-bottom:15px;
+}
+.sheet-logo{
+  width:84px;
+  height:84px;
+  border-radius:18px;
+}
+.sheet-brand p{
+  font-size:15px;
+}
+.sheet-qr{
+  width:80px;
+  height:80px;
+}
+.sheet-qr img,.sheet-qr canvas{
+  max-width:70px!important;
+  max-height:70px!important;
+}
+.hero-card{
+  min-height:210px;
+  margin-bottom:14px;
+  padding:23px 30px;
+  border-radius:30px 9px 30px 9px;
+}
+.hero-card h1{
+  font-size:32px;
+  margin:10px 0 6px;
+}
+.hero-caption{
+  max-width:500px;
+  margin-bottom:10px;
+  line-height:1.75;
+}
+.hero-visual{
+  min-height:160px;
+}
+.visual-card{
+  width:104px;
+  height:104px;
+  border-radius:27px;
+}
+.visual-card svg{
+  width:57px;
+  height:57px;
+}
+.orbit-one{width:150px;height:150px}
+.orbit-two{width:178px;height:178px}
+
+.info-grid{
+  gap:9px;
+  margin-bottom:12px;
+}
+.info-card{
+  min-height:70px;
+  padding:10px 13px;
+  border-radius:17px;
+}
+.info-icon{
+  width:38px;
+  height:38px;
+  flex-basis:38px;
+  border-radius:12px;
+}
+.info-card strong{
+  font-size:12px;
+}
+
+.story-grid{
+  gap:10px;
+  margin-bottom:12px;
+}
+.content-block{
+  padding:12px 14px 13px;
+  border-radius:18px;
+}
+.block-title{
+  margin-bottom:7px;
+}
+.block-title>span{
+  width:30px;
+  height:30px;
+  flex-basis:30px;
+  border-radius:10px;
+}
+.content-block p{
+  min-height:62px;
+  font-size:9.4px;
+  line-height:1.78;
+}
+
+.evidence-block{
+  margin-bottom:10px;
+  padding:12px 14px 14px;
+  border-radius:20px;
+}
+.evidence-heading{
+  margin-bottom:8px;
+}
+.evidence-image-box{
+  background:#fff;
+}
+.evidence-frame{
+  padding:6px 6px 5px;
+  border-radius:14px;
+}
+.evidence-frame figcaption{
+  padding-top:4px;
+  font-size:7px;
+}
+
+/* Minimal, clean footer: only design + follow-up */
+.compact-footer{
+  margin-top:auto;
+  padding-top:8px;
+}
+.credit-strip{
+  display:grid;
+  grid-template-columns:minmax(120px,.8fr) 1px minmax(120px,.8fr) 1px minmax(210px,1.4fr);
+  align-items:center;
+  gap:12px;
+  padding:11px 16px;
+  border:1px solid #dce7ef;
+  border-radius:16px 16px 5px 5px;
+  background:
+    linear-gradient(90deg,#f8fbfd 0 58%,#eef7fb 58% 100%);
+}
+.credit-item{
+  min-width:0;
+}
+.credit-item span{
+  display:block;
+  margin-bottom:2px;
+  color:#8a9aaa;
+  font-size:7.2px;
+  font-weight:800;
+}
+.credit-item strong{
+  display:block;
+  color:#173f66;
+  font-size:9px;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+.credit-separator{
+  width:1px;
+  height:28px;
+  background:#d5e2eb;
+}
+.credit-brand{
+  text-align:left;
+  direction:rtl;
+}
+.credit-brand strong,
+.credit-brand span{
+  display:block;
+}
+.credit-brand strong{
+  color:#0e568e;
+  font-size:8.3px;
+  font-weight:900;
+}
+.credit-brand span{
+  margin-top:2px;
+  color:#8192a4;
+  font-size:6.7px;
+  font-weight:700;
+}
+
+/* Hide old footer patterns if cached markup exists */
+.compact-footer .footer-title,
+.compact-footer .footer-signatures,
+.compact-footer .footer-bottom{
+  display:none!important;
+}
+
+@media print{
+  .achievement-sheet{
+    padding:7mm 8mm 5mm!important;
+  }
+  .sheet-header{
+    min-height:19mm;
+    margin-bottom:3mm;
+  }
+  .sheet-logo{
+    width:19mm;
+    height:19mm;
+  }
+  .sheet-qr{
+    width:18mm;
+    height:18mm;
+  }
+  .sheet-qr img,.sheet-qr canvas{
+    max-width:15.5mm!important;
+    max-height:15.5mm!important;
+  }
+  .hero-card{
+    min-height:45mm;
+    margin-bottom:2.8mm;
+    padding:4.3mm 6mm;
+  }
+  .hero-card h1{
+    font-size:19pt;
+    margin:2mm 0 1mm;
+  }
+  .hero-caption{
+    font-size:6.2pt;
+    margin-bottom:1.5mm;
+  }
+  .hero-visual{
+    min-height:34mm;
+  }
+  .visual-card{
+    width:23mm;
+    height:23mm;
+  }
+  .visual-card svg{
+    width:12.5mm;
+    height:12.5mm;
+  }
+  .orbit-one{width:34mm;height:34mm}
+  .orbit-two{width:40mm;height:40mm}
+  .info-grid{
+    gap:1.5mm;
+    margin-bottom:2.3mm;
+  }
+  .info-card{
+    min-height:14.5mm;
+    padding:1.8mm 2.4mm;
+  }
+  .story-grid{
+    gap:2mm;
+    margin-bottom:2.3mm;
+  }
+  .content-block{
+    padding:2.2mm 2.6mm 2.4mm;
+  }
+  .content-block p{
+    min-height:14mm;
+    font-size:5.9pt;
+  }
+  .evidence-block{
+    margin-bottom:1.7mm;
+    padding:2.2mm 2.5mm 2.5mm;
+  }
+  .compact-footer{
+    padding-top:1mm;
+  }
+  .credit-strip{
+    grid-template-columns:minmax(24mm,.8fr) .3mm minmax(24mm,.8fr) .3mm minmax(45mm,1.4fr);
+    gap:2mm;
+    padding:2mm 3mm;
+    border-radius:3mm 3mm 1mm 1mm;
+  }
+  .credit-item span{
+    font-size:4.4pt;
+  }
+  .credit-item strong{
+    font-size:5.4pt;
+  }
+  .credit-separator{
+    height:6mm;
+  }
+  .credit-brand strong{
+    font-size:5pt;
+  }
+  .credit-brand span{
+    font-size:4.2pt;
+  }
+}
