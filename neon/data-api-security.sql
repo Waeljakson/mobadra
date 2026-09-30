@@ -43,6 +43,7 @@ DECLARE
   saved mobadra_events%ROWTYPE;
   v_slug text;
   v_participant_count integer;
+  v_design_theme text;
 BEGIN
   SELECT setting_value
     INTO expected_hash
@@ -77,11 +78,16 @@ BEGIN
     END IF;
   END IF;
 
+  v_design_theme := coalesce(nullif(p_event->>'designTheme',''), 'blue');
+  IF v_design_theme NOT IN ('blue','gold','green','burgundy') THEN
+    v_design_theme := 'blue';
+  END IF;
+
   INSERT INTO mobadra_events (
     slug, event_name, organization_name, event_date, event_location,
     participant_count, event_field, target_audience, event_goal, summary,
     logo_data_url, evidence_images, designer, follow_up, event_director,
-    assistants, school_principal, is_published
+    assistants, school_principal, design_theme, is_published
   )
   VALUES (
     v_slug,
@@ -104,26 +110,28 @@ BEGIN
     left(coalesce(p_event->>'eventDirector',''),120),
     left(coalesce(p_event->>'assistants',''),220),
     left(coalesce(p_event->>'schoolPrincipal',''),120),
+    v_design_theme,
     true
   )
   ON CONFLICT (slug) DO UPDATE SET
-    event_name = EXCLUDED.event_name,
-    organization_name = EXCLUDED.organization_name,
-    event_date = EXCLUDED.event_date,
-    event_location = EXCLUDED.event_location,
-    participant_count = EXCLUDED.participant_count,
-    event_field = EXCLUDED.event_field,
-    target_audience = EXCLUDED.target_audience,
-    event_goal = EXCLUDED.event_goal,
-    summary = EXCLUDED.summary,
-    logo_data_url = EXCLUDED.logo_data_url,
-    evidence_images = EXCLUDED.evidence_images,
-    designer = EXCLUDED.designer,
-    follow_up = EXCLUDED.follow_up,
-    event_director = EXCLUDED.event_director,
-    assistants = EXCLUDED.assistants,
-    school_principal = EXCLUDED.school_principal,
-    is_published = true
+    event_name=EXCLUDED.event_name,
+    organization_name=EXCLUDED.organization_name,
+    event_date=EXCLUDED.event_date,
+    event_location=EXCLUDED.event_location,
+    participant_count=EXCLUDED.participant_count,
+    event_field=EXCLUDED.event_field,
+    target_audience=EXCLUDED.target_audience,
+    event_goal=EXCLUDED.event_goal,
+    summary=EXCLUDED.summary,
+    logo_data_url=EXCLUDED.logo_data_url,
+    evidence_images=EXCLUDED.evidence_images,
+    designer=EXCLUDED.designer,
+    follow_up=EXCLUDED.follow_up,
+    event_director=EXCLUDED.event_director,
+    assistants=EXCLUDED.assistants,
+    school_principal=EXCLUDED.school_principal,
+    design_theme=EXCLUDED.design_theme,
+    is_published=true
   RETURNING * INTO saved;
 
   RETURN to_jsonb(saved);
