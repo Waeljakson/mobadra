@@ -161,12 +161,12 @@
         </div>
 
         <div class="field">
-          <label for="designer">التصميم</label>
-          <input id="designer" name="designer" maxlength="90" placeholder="الاسم" />
+          <label for="assistants">مساعدو المدير</label>
+          <input id="assistants" name="assistants" maxlength="160" placeholder="الأسماء مفصولة بفاصلة" />
         </div>
         <div class="field">
-          <label for="followUp">المتابعة</label>
-          <input id="followUp" name="followUp" maxlength="90" placeholder="الاسم" />
+          <label for="schoolPrincipal">مدير المدرسة</label>
+          <input id="schoolPrincipal" name="schoolPrincipal" maxlength="90" placeholder="الاسم" />
         </div>
 
         <div class="publish-box span-2">
@@ -246,18 +246,15 @@
             </div>
           </div>
 
-          <div class="hero-visual" aria-hidden="true">
-            <div class="visual-orbit orbit-one"></div>
-            <div class="visual-orbit orbit-two"></div>
-            <div class="visual-card trophy-card">
-              <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
-                <path d="M33 13h34v12c0 19-8 31-17 36-9-5-17-17-17-36V13Z" fill="currentColor"/>
-                <path d="M33 22H18v10c0 13 7 22 19 23M67 22h15v10c0 13-7 22-19 23" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
-                <path d="M50 61v13M34 87h32M39 74h22v13H39Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="m50 24 4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1Z" fill="#fff"/>
-              </svg>
+          <div class="hero-visual">
+            <div class="visual-orbit orbit-one" aria-hidden="true"></div>
+            <div class="visual-orbit orbit-two" aria-hidden="true"></div>
+            <div id="heroEvidenceFrame" class="visual-card hero-evidence-frame">
+              <div class="hero-evidence-placeholder">
+                <span>صورة من الشواهد</span>
+              </div>
             </div>
-            <div class="visual-badge">تميّز</div>
+            <div class="visual-badge">من الشواهد</div>
           </div>
         </section>
 
@@ -339,13 +336,13 @@
         <footer class="sheet-footer compact-footer">
           <div class="credit-strip">
             <div class="credit-item">
-              <span>التصميم</span>
-              <strong id="sheetDesigner">—</strong>
+              <span>مساعدو المدير</span>
+              <strong id="sheetAssistants">—</strong>
             </div>
             <div class="credit-separator"></div>
-            <div class="credit-item">
-              <span>المتابعة</span>
-              <strong id="sheetFollowUp">—</strong>
+            <div class="credit-item principal-credit">
+              <span>مدير المدرسة</span>
+              <strong id="sheetPrincipal">—</strong>
             </div>
             <div class="credit-separator"></div>
             <div class="credit-brand">
