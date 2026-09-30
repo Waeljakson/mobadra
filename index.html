@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0b5f53" />
-  <meta name="description" content="مبادرة التحول الذكي في التعليم: منصة للفعاليات والنشرات والتوثيق الرقمي." />
-  <title>مبادرة التحول الذكي في التعليم</title>
+  <meta name="description" content="التحول الذكي في التعليم: منصة للفعاليات والنشرات والتوثيق الرقمي." />
+  <title>التحول الذكي في التعليم</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,47 +15,12 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <section id="authScreen" class="auth-screen no-print">
-    <div class="auth-card">
+    <div class="auth-card simple-entry-card">
       <div class="auth-emblem">ذ</div>
       <p class="auth-kicker">منصة مدرسية رقمية</p>
-      <h1>مبادرة التحول الذكي في التعليم</h1>
-      <p class="auth-subtitle">منصة موحدة لإنشاء وتوثيق الفعاليات والنشرات التعليمية.</p>
-
-      <div id="setupPanel" class="hidden">
-        <div class="auth-mode-note">
-          <strong>إعداد أول مستخدم</strong>
-          <span>أنشئ حساب الإدارة الأول للمنصة.</span>
-        </div>
-        <form id="setupForm" class="auth-form" autocomplete="off">
-          <label>
-            <span>الاسم</span>
-            <input id="setupDisplayName" required maxlength="120" placeholder="مثال: محمد أحمد" />
-          </label>
-          <label>
-            <span>اسم المستخدم</span>
-            <input id="setupUsername" required minlength="3" maxlength="60" autocomplete="username" placeholder="admin" />
-          </label>
-          <label>
-            <span>كلمة المرور</span>
-            <input id="setupPassword" required minlength="6" type="password" autocomplete="new-password" placeholder="6 أحرف على الأقل" />
-          </label>
-          <button class="btn btn-primary auth-submit" type="submit">إنشاء الحساب وبدء الاستخدام</button>
-        </form>
-      </div>
-
-      <form id="loginForm" class="auth-form hidden" autocomplete="on">
-        <label>
-          <span>اسم المستخدم</span>
-          <input id="loginUsername" required autocomplete="username" placeholder="اسم المستخدم" />
-        </label>
-        <label>
-          <span>كلمة المرور</span>
-          <input id="loginPassword" required type="password" autocomplete="current-password" placeholder="كلمة المرور" />
-        </label>
-        <button class="btn btn-primary auth-submit" type="submit">دخول المنصة</button>
-      </form>
-
-      <div id="authMessage" class="auth-message"></div>
+      <h1>التحول الذكي في التعليم</h1>
+      <p class="auth-subtitle">منصة موحدة لتوثيق الفعاليات وإنشاء النشرات التعليمية بصورة احترافية.</p>
+      <button id="enterPlatformBtn" class="btn btn-primary simple-entry-btn" type="button">الدخول للمنصة</button>
     </div>
   </section>
 
@@ -64,27 +29,25 @@
       <div class="brand">
         <div class="brand-mark">ذ</div>
         <div>
-          <strong>مبادرة التحول الذكي في التعليم</strong>
+          <strong>التحول الذكي في التعليم</strong>
           <span>فعاليات • نشرات • توثيق رقمي</span>
         </div>
       </div>
       <div class="top-actions">
-        <span id="currentUserBadge" class="user-badge hidden"></span>
         <button id="homeBtn" class="btn btn-ghost hidden" type="button">الرئيسية</button>
         <button id="newEventBtn" class="btn btn-ghost hidden" type="button">فعالية جديدة</button>
         <button id="exportPngTopBtn" class="btn btn-ghost hidden" type="button">PNG</button>
         <button id="exportPdfTopBtn" class="btn btn-dark hidden" type="button">PDF</button>
         <button id="newsletterPngTopBtn" class="btn btn-ghost hidden" type="button">PNG</button>
         <button id="newsletterPdfTopBtn" class="btn btn-dark hidden" type="button">PDF</button>
-        <button id="logoutBtn" class="btn btn-ghost hidden" type="button">خروج</button>
-      </div>
+        </div>
     </header>
 
     <section id="dashboardScreen" class="dashboard-screen hidden">
       <div class="dashboard-hero">
         <div>
           <p class="eyebrow">لوحة المبادرة</p>
-          <h1>مبادرة التحول الذكي في التعليم</h1>
+          <h1>التحول الذكي في التعليم</h1>
           <p>اختر الأداة التي تريد العمل عليها.</p>
         </div>
         <div class="dashboard-orb">ذ</div>
@@ -168,6 +131,11 @@
         </div>
 
         <div class="field">
+          <label for="eventDirector">إشراف / منسق الفعالية</label>
+          <input id="eventDirector" name="eventDirector" maxlength="120" placeholder="اسم المشرف أو منسق الفعالية" />
+        </div>
+
+        <div class="field">
           <label for="targetAudience">الفئة المستهدفة</label>
           <input id="targetAudience" name="targetAudience" maxlength="120" placeholder="طلاب الصف..." />
         </div>
@@ -180,38 +148,6 @@
         <div class="field span-2">
           <label for="summary">نبذة عن الفعالية</label>
           <textarea id="summary" name="summary" rows="4" maxlength="1100" placeholder="ملخص تنفيذي لما تم في الفعالية وأبرز مخرجاتها..."></textarea>
-        </div>
-
-        <div class="design-picker span-2">
-          <div class="design-picker-head">
-            <div>
-              <strong>اختر شكل ورقة الإنجاز</strong>
-              <small>يمكن تغيير التصميم في أي وقت قبل أو بعد النشر</small>
-            </div>
-          </div>
-          <input id="designTheme" name="designTheme" type="hidden" value="blue" />
-          <div id="designOptions" class="design-options">
-            <button class="design-option active" type="button" data-theme="blue" aria-pressed="true">
-              <span class="design-thumb design-thumb-blue"><i></i><b></b><em></em></span>
-              <strong>احتفالي ملكي</strong>
-              <small>أزرق وذهبي فاخر</small>
-            </button>
-            <button class="design-option" type="button" data-theme="gold" aria-pressed="false">
-              <span class="design-thumb design-thumb-gold"><i></i><b></b><em></em></span>
-              <strong>ذهبي فاخر</strong>
-              <small>رسمي وأنيق</small>
-            </button>
-            <button class="design-option" type="button" data-theme="green" aria-pressed="false">
-              <span class="design-thumb design-thumb-green"><i></i><b></b><em></em></span>
-              <strong>أخضر حيوي</strong>
-              <small>مبادرات وأنشطة</small>
-            </button>
-            <button class="design-option" type="button" data-theme="burgundy" aria-pressed="false">
-              <span class="design-thumb design-thumb-burgundy"><i></i><b></b><em></em></span>
-              <strong>عنابي كلاسيكي</strong>
-              <small>تكريم ومناسبات</small>
-            </button>
-          </div>
         </div>
 
         <div class="upload-card span-2">
@@ -283,153 +219,91 @@
         </div>
       </div>
 
-      <article id="achievementSheet" class="achievement-sheet">
-        <div class="sheet-top-wave"></div>
-        <div class="sheet-dot-pattern sheet-dot-pattern-a"></div>
-        <div class="sheet-dot-pattern sheet-dot-pattern-b"></div>
+      <article id="achievementSheet" class="achievement-sheet reference-sheet">
+        <div class="ref-side-ribbon ref-side-ribbon-blue"></div>
+        <div class="ref-side-ribbon ref-side-ribbon-peach"></div>
 
-        <header class="sheet-header">
-          <div id="sheetLogo" class="sheet-logo">
+        <header class="ref-header">
+          <div class="ref-header-copy">
+            <h1>توثيق الأنشطة<br>والفعاليات المدرسية</h1>
+            <p>العام الدراسي 2026 / 2027م</p>
+            <strong id="sheetOrganization">اسم المؤسسة / المدرسة</strong>
+          </div>
+          <div id="sheetLogo" class="ref-school-logo">
             <span>الشعار</span>
-          </div>
-
-          <div class="sheet-brand">
-            <span class="sheet-kicker">ملف توثيق وإنجاز</span>
-            <p id="sheetOrganization">اسم المؤسسة / المدرسة</p>
-          </div>
-
-          <div class="sheet-qr-wrap">
-            <div id="sheetQr" class="sheet-qr"><span>QR</span></div>
-            <small>امسح لعرض الفعالية</small>
           </div>
         </header>
 
-        <section class="hero-card">
-          <div class="royal-confetti" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i><i></i>
-          </div>
-          <div class="hero-copy">
-            <div class="royal-crown" aria-hidden="true">
-              <svg viewBox="0 0 120 70">
-                <path d="M12 53 22 20l24 20L60 10l14 30 25-20 9 33Z" fill="currentColor"/>
-                <rect x="15" y="51" width="90" height="10" rx="5" fill="currentColor"/>
-                <circle cx="22" cy="19" r="5" fill="currentColor"/>
-                <circle cx="60" cy="9" r="5" fill="currentColor"/>
-                <circle cx="99" cy="19" r="5" fill="currentColor"/>
-              </svg>
+        <section class="ref-main-row">
+          <div class="ref-details">
+            <div class="ref-detail-item">
+              <span>تاريخ الفعالية</span>
+              <strong id="sheetDate">—</strong>
             </div>
-            <span class="hero-pill">ورقة إنجاز فعالية</span>
-            <h1 id="sheetEventName">اسم الفعالية</h1>
-            <div class="hero-line"></div>
-            <p class="hero-caption">توثيق مختصر ومنظم لأبرز بيانات الفعالية وأهدافها وشواهد تنفيذها.</p>
-            <div class="hero-meta">
-              <span id="sheetDate">التاريخ: —</span>
-              <span id="sheetLocation">المكان: —</span>
+            <div class="ref-detail-item">
+              <span>إشراف / منسق الفعالية</span>
+              <strong id="sheetDirector">—</strong>
             </div>
-          </div>
-
-          <div class="hero-visual">
-            <div class="visual-orbit orbit-one" aria-hidden="true"></div>
-            <div class="visual-orbit orbit-two" aria-hidden="true"></div>
-            <div id="heroEvidenceFrame" class="visual-card hero-evidence-frame">
-              <div class="hero-evidence-placeholder">
-                <span>صورة من الشواهد</span>
-              </div>
+            <div class="ref-detail-item">
+              <span>مكان الفعالية</span>
+              <strong id="sheetLocation">—</strong>
             </div>
-          </div>
-        </section>
-
-        <section class="info-grid">
-          <div class="info-card info-card-blue">
-            <div class="info-icon">01</div>
-            <div>
-              <span class="info-label">مجال الفعالية</span>
+            <div class="ref-detail-item">
+              <span>نوع الفعالية</span>
               <strong id="sheetField">—</strong>
             </div>
-          </div>
-          <div class="info-card info-card-teal">
-            <div class="info-icon">02</div>
-            <div>
-              <span class="info-label">الفئة المستهدفة</span>
-              <strong id="sheetAudience">—</strong>
-            </div>
-          </div>
-          <div class="info-card info-card-gold">
-            <div class="info-icon">03</div>
-            <div>
-              <span class="info-label">عدد المشاركين</span>
+            <div class="ref-detail-item">
+              <span>عدد المشاركين</span>
               <strong id="sheetParticipants">—</strong>
             </div>
           </div>
-        </section>
 
-        <section class="story-grid">
-          <section class="content-block content-block-goal">
-            <div class="block-title">
-              <span>01</span>
-              <div>
-                <small>WHY</small>
-                <h3>هدف الفعالية</h3>
-              </div>
-            </div>
-            <p id="sheetGoal">يظهر هنا هدف الفعالية بعد إدخاله في النموذج.</p>
-          </section>
-
-          <section class="content-block content-block-summary">
-            <div class="block-title">
-              <span>02</span>
-              <div>
-                <small>ABOUT</small>
-                <h3>نبذة عن الفعالية</h3>
-              </div>
-            </div>
-            <p id="sheetSummary">يظهر هنا وصف مختصر لما تم تنفيذه وأبرز مخرجات الفعالية.</p>
-          </section>
-        </section>
-
-        <section class="evidence-block">
-          <div class="evidence-heading">
-            <div class="block-title">
-              <span>03</span>
-              <div>
-                <small>EVIDENCE</small>
-                <h3>شواهد الفعالية</h3>
-              </div>
-            </div>
-            <div class="evidence-rule"></div>
-            <span class="evidence-caption">صور من التنفيذ والتوثيق</span>
-          </div>
-
-          <div id="sheetEvidence" class="sheet-evidence empty">
-            <div class="evidence-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 64 64" aria-hidden="true">
-                  <rect x="9" y="13" width="46" height="38" rx="6" fill="none" stroke="currentColor" stroke-width="3"/>
-                  <circle cx="23" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
-                  <path d="m15 45 12-12 9 9 6-6 7 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <span>أضف صور الشواهد لتظهر هنا بتنسيق احترافي</span>
+          <div id="heroEvidenceFrame" class="ref-main-photo">
+            <div class="hero-evidence-placeholder">
+              <span>صورة الفعالية</span>
             </div>
           </div>
         </section>
 
-        <footer class="sheet-footer compact-footer">
-          <div class="credit-strip">
-            <div class="credit-item">
-              <span>مساعدو المدير</span>
-              <strong id="sheetAssistants">—</strong>
-            </div>
-            <div class="credit-separator"></div>
-            <div class="credit-item principal-credit">
-              <span>مدير المدرسة</span>
-              <strong id="sheetPrincipal">—</strong>
-            </div>
-            <div class="credit-separator"></div>
-            <div class="credit-brand">
-              <strong>إنجاز • توثيق • أثر</strong>
-              <span>وثيقة رقمية قابلة للتحقق عبر QR</span>
-            </div>
+        <section class="ref-title-band">
+          <h2 id="sheetEventName">اسم الفعالية</h2>
+        </section>
+
+        <section class="ref-info-grid">
+          <div class="ref-info-card ref-goal-card">
+            <h3>هدف الفعالية</h3>
+            <p id="sheetGoal">يظهر هنا هدف الفعالية.</p>
+          </div>
+
+          <div class="ref-info-card ref-field-card">
+            <h3>مجال الفعالية</h3>
+            <p id="sheetFieldCard">—</p>
+          </div>
+
+          <div class="ref-info-card ref-audience-card">
+            <h3>الفئة المستهدفة</h3>
+            <p id="sheetAudience">—</p>
+          </div>
+
+          <div class="ref-info-card ref-summary-card">
+            <h3>نبذة عن الفعالية</h3>
+            <p id="sheetSummary">يظهر هنا وصف مختصر لما تم تنفيذه.</p>
+          </div>
+        </section>
+
+        <section id="extraEvidenceSection" class="ref-extra-evidence hidden">
+          <h3>شواهد إضافية</h3>
+          <div id="sheetEvidence" class="sheet-evidence"></div>
+        </section>
+
+        <footer class="ref-approval-box">
+          <div>
+            <span>مساعدو المدير</span>
+            <strong id="sheetAssistants">—</strong>
+          </div>
+          <div>
+            <span>مدير المدرسة</span>
+            <strong id="sheetPrincipal">—</strong>
           </div>
         </footer>
       </article>
@@ -506,7 +380,7 @@
         <header class="newsletter-head">
           <div class="newsletter-brand-mark">ذ</div>
           <div>
-            <span>مبادرة التحول الذكي في التعليم</span>
+            <span>التحول الذكي في التعليم</span>
             <strong>النشرات</strong>
           </div>
         </header>
