@@ -1380,3 +1380,258 @@ button{cursor:pointer}
     font-size:4.2pt;
   }
 }
+
+
+/* =========================================================
+   DESIGN PICKER + MULTIPLE ACHIEVEMENT THEMES
+   ========================================================= */
+.design-picker{
+  padding:14px;
+  border:1px solid #dce7ef;
+  border-radius:18px;
+  background:linear-gradient(145deg,#fbfdff,#f5f9fc);
+}
+.design-picker-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:11px;
+}
+.design-picker-head strong,
+.design-picker-head small{display:block}
+.design-picker-head strong{
+  color:#183d63;
+  font-size:13px;
+  font-weight:900;
+}
+.design-picker-head small{
+  margin-top:2px;
+  color:#8091a3;
+  font-size:9px;
+  font-weight:600;
+}
+.design-options{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+.design-option{
+  min-width:0;
+  padding:8px;
+  border:1px solid #dce6ee;
+  border-radius:14px;
+  background:#fff;
+  color:#314f6c;
+  text-align:center;
+  transition:.18s transform,.18s box-shadow,.18s border-color;
+}
+.design-option:hover{transform:translateY(-1px)}
+.design-option.active{
+  border-color:#167bb5;
+  box-shadow:0 0 0 2px rgba(22,123,181,.12),0 8px 20px rgba(24,71,107,.08);
+}
+.design-option>strong{
+  display:block;
+  margin-top:6px;
+  font-size:9.5px;
+  font-weight:900;
+}
+.design-option>small{
+  display:block;
+  color:#8796a5;
+  font-size:7px;
+  font-weight:600;
+}
+.design-thumb{
+  position:relative;
+  display:block;
+  height:58px;
+  overflow:hidden;
+  border-radius:9px;
+  border:1px solid rgba(0,0,0,.05);
+  background:#f4f7fa;
+}
+.design-thumb::before{
+  content:"";
+  position:absolute;
+  top:7px;
+  right:7px;
+  width:22px;
+  height:5px;
+  border-radius:4px;
+  background:currentColor;
+  opacity:.85;
+}
+.design-thumb i{
+  position:absolute;
+  top:18px;
+  right:7px;
+  left:7px;
+  height:18px;
+  border-radius:6px;
+  background:currentColor;
+  opacity:.16;
+}
+.design-thumb b,
+.design-thumb em{
+  position:absolute;
+  bottom:7px;
+  height:10px;
+  border-radius:4px;
+  background:currentColor;
+}
+.design-thumb b{right:7px;width:34%}
+.design-thumb em{left:7px;width:50%;opacity:.45}
+.design-thumb-blue{color:#0d67a6;background:linear-gradient(135deg,#fafdff,#e9f5fc)}
+.design-thumb-gold{color:#a5781d;background:linear-gradient(135deg,#fffdf8,#f8f0dc)}
+.design-thumb-green{color:#147461;background:linear-gradient(135deg,#fbfffd,#eaf7f2)}
+.design-thumb-burgundy{color:#7b2341;background:linear-gradient(135deg,#fffafb,#f7e9ee)}
+
+.mini-btn-primary{
+  background:#173f66;
+  color:#fff;
+  border-color:#173f66;
+}
+.public-actions{
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* Theme token maps */
+.achievement-sheet.theme-blue{
+  --theme-primary:#0d5593;
+  --theme-secondary:#15978b;
+  --theme-accent:#d49a20;
+  --theme-ink:#0c3566;
+  --theme-soft:#eef7fd;
+  --theme-soft-2:#f8fcff;
+  --theme-border:#dbe9f4;
+  --theme-footer:#eef7fb;
+}
+.achievement-sheet.theme-gold{
+  --theme-primary:#8b6517;
+  --theme-secondary:#c4983f;
+  --theme-accent:#26384a;
+  --theme-ink:#554319;
+  --theme-soft:#fbf5e8;
+  --theme-soft-2:#fffdf8;
+  --theme-border:#eadfca;
+  --theme-footer:#f8f1e2;
+}
+.achievement-sheet.theme-green{
+  --theme-primary:#116a5b;
+  --theme-secondary:#2b9b81;
+  --theme-accent:#c1922d;
+  --theme-ink:#134f45;
+  --theme-soft:#eaf6f2;
+  --theme-soft-2:#f9fdfb;
+  --theme-border:#d3e9e1;
+  --theme-footer:#eaf6f2;
+}
+.achievement-sheet.theme-burgundy{
+  --theme-primary:#7a1f3d;
+  --theme-secondary:#a64f6d;
+  --theme-accent:#c59547;
+  --theme-ink:#61213a;
+  --theme-soft:#f8eaf0;
+  --theme-soft-2:#fff9fb;
+  --theme-border:#ecd7df;
+  --theme-footer:#f8eaf0;
+}
+
+/* Apply theme consistently to the visual sheet */
+.achievement-sheet.theme-blue .hero-card,
+.achievement-sheet.theme-gold .hero-card,
+.achievement-sheet.theme-green .hero-card,
+.achievement-sheet.theme-burgundy .hero-card{
+  border-color:var(--theme-border);
+  background:linear-gradient(90deg,#fff 0 57%,var(--theme-soft) 57% 100%);
+}
+.achievement-sheet[class*="theme-"] .sheet-kicker{
+  color:var(--theme-primary);
+  background:var(--theme-soft);
+}
+.achievement-sheet[class*="theme-"] .sheet-brand p,
+.achievement-sheet[class*="theme-"] .hero-card h1,
+.achievement-sheet[class*="theme-"] .block-title h3{
+  color:var(--theme-ink);
+}
+.achievement-sheet[class*="theme-"] .hero-pill{
+  background:var(--theme-primary);
+  box-shadow:0 8px 18px color-mix(in srgb,var(--theme-primary) 22%,transparent);
+}
+.achievement-sheet[class*="theme-"] .hero-line{
+  background:linear-gradient(90deg,var(--theme-primary),var(--theme-secondary));
+}
+.achievement-sheet[class*="theme-"] .visual-card{
+  color:var(--theme-primary);
+}
+.achievement-sheet[class*="theme-"] .visual-orbit{
+  border-color:color-mix(in srgb,var(--theme-primary) 28%,transparent);
+}
+.achievement-sheet[class*="theme-"] .visual-badge{
+  background:var(--theme-secondary);
+}
+.achievement-sheet[class*="theme-"] .content-block-goal{
+  background:linear-gradient(145deg,var(--theme-soft-2),var(--theme-soft));
+  border-color:var(--theme-border);
+}
+.achievement-sheet[class*="theme-"] .content-block-goal .block-title>span{
+  background:var(--theme-primary);
+}
+.achievement-sheet[class*="theme-"] .content-block-summary .block-title>span{
+  background:var(--theme-secondary);
+}
+.achievement-sheet[class*="theme-"] .evidence-block .block-title>span{
+  background:var(--theme-accent);
+}
+.achievement-sheet[class*="theme-"] .credit-brand strong{
+  color:var(--theme-primary);
+}
+.achievement-sheet[class*="theme-"] .credit-strip{
+  border-color:var(--theme-border);
+  background:linear-gradient(90deg,#fff 0 58%,var(--theme-footer) 58% 100%);
+}
+.achievement-sheet[class*="theme-"] .hero-meta span{
+  border-color:var(--theme-border);
+}
+.achievement-sheet[class*="theme-"] .evidence-placeholder{
+  border-color:var(--theme-border);
+  background:linear-gradient(135deg,var(--theme-soft),#fff);
+}
+.achievement-sheet[class*="theme-"] .placeholder-icon{
+  color:var(--theme-primary);
+}
+
+/* Distinctive decorative character for each design */
+.achievement-sheet.theme-gold .sheet-top-wave{
+  background:linear-gradient(145deg,rgba(196,152,63,.22),rgba(247,237,214,.72) 60%,rgba(255,255,255,.75));
+}
+.achievement-sheet.theme-gold .sheet-dot-pattern{
+  background-image:radial-gradient(circle,#9b741f 1.8px,transparent 2px);
+}
+.achievement-sheet.theme-green .sheet-top-wave{
+  background:linear-gradient(145deg,rgba(43,155,129,.20),rgba(218,241,233,.72) 60%,rgba(255,255,255,.75));
+}
+.achievement-sheet.theme-green .sheet-dot-pattern{
+  background-image:radial-gradient(circle,#15715f 1.8px,transparent 2px);
+}
+.achievement-sheet.theme-burgundy .sheet-top-wave{
+  background:linear-gradient(145deg,rgba(122,31,61,.18),rgba(244,220,229,.72) 60%,rgba(255,255,255,.78));
+}
+.achievement-sheet.theme-burgundy .sheet-dot-pattern{
+  background-image:radial-gradient(circle,#7a1f3d 1.8px,transparent 2px);
+}
+.achievement-sheet.theme-burgundy .hero-card::before{
+  background:linear-gradient(145deg,#f1d9e2,#fbf1f5 58%,#ecd2dc);
+}
+.achievement-sheet.theme-green .hero-card::before{
+  background:linear-gradient(145deg,#d6eee6,#eff9f5 58%,#d7eee7);
+}
+.achievement-sheet.theme-gold .hero-card::before{
+  background:linear-gradient(145deg,#f3e7ca,#fcf8ee 58%,#efe1c1);
+}
+
+@media(max-width:700px){
+  .design-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
