@@ -3,7 +3,8 @@
 
   const config = window.MOBADRA_CONFIG || {};
   const DATA_API_URL = String(config.dataApiUrl || "").replace(/\/$/, "");
-  const HAS_BACKEND = Boolean(DATA_API_URL);
+  const AUTH_BASE_URL = String(config.authBaseUrl || "").replace(/\/$/, "");
+  const HAS_BACKEND = Boolean(DATA_API_URL && AUTH_BASE_URL);
   const MAX_EVIDENCE = Number(config.maxEvidenceImages || 6);
   const MAX_WIDTH = Number(config.maxImageWidth || 1400);
   const JPEG_QUALITY = Number(config.jpegQuality || 0.82);
@@ -299,12 +300,70 @@
     return key;
   };
 
-  const dataApiFetch = async (path, options = {}) => {
+  let anonymousJwt = "";
+  let anonymousJwtAt = 0;
+
+  const getAnonymousJwt = async (forceRefresh = false) => {
     if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
 
+    const stillFresh =
+      anonymousJwt &&
+      (Date.now() - anonymousJwtAt) < 8 * 60 * 1000;
+
+    if (!forceRefresh && stillFresh) return anonymousJwt;
+
+    const response = await fetch(AUTH_BASE_URL + "/token/anonymous", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      },
+      credentials: "omit"
+    });
+
+    let payload = null;
+    const raw = await response.text();
+    if (raw) {
+      try { payload = JSON.parse(raw); } catch { payload = raw; }
+    }
+
+    if (!response.ok) {
+      const message =
+        payload?.message ||
+        payload?.error ||
+        (typeof payload === "string" ? payload : null) ||
+        ("AUTH HTTP " + response.status);
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    const token =
+      payload?.token ||
+      payload?.jwt ||
+      payload?.accessToken ||
+      payload?.access_token ||
+      payload?.data?.token ||
+      payload?.data?.jwt ||
+      payload?.data?.accessToken ||
+      payload?.data?.access_token;
+
+    if (!token || typeof token !== "string") {
+      throw new Error("تعذر الحصول على رمز الوصول العام من Neon");
+    }
+
+    anonymousJwt = token;
+    anonymousJwtAt = Date.now();
+    return anonymousJwt;
+  };
+
+  const dataApiFetch = async (path, options = {}, canRetry = true) => {
+    if (!HAS_BACKEND) throw new Error("BACKEND_NOT_CONFIGURED");
+
+    const token = await getAnonymousJwt();
     const headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
+      "Authorization": "Bearer " + token,
       ...(options.headers || {})
     };
 
@@ -312,6 +371,13 @@
       ...options,
       headers
     });
+
+    if (response.status === 401 && canRetry) {
+      anonymousJwt = "";
+      anonymousJwtAt = 0;
+      await getAnonymousJwt(true);
+      return dataApiFetch(path, options, false);
+    }
 
     let payload = null;
     const bodyText = await response.text();
@@ -324,6 +390,7 @@
         payload?.message ||
         payload?.error ||
         payload?.details ||
+        payload?.hint ||
         (typeof payload === "string" ? payload : null) ||
         ("HTTP " + response.status);
       const err = new Error(message);
